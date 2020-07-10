@@ -11,7 +11,7 @@ class Foo {
 
     // Fallback property, old config requires transformation of type
     val interval: Duration by config(
-        legacyconfig<Long>("old.path.interval.millis").transformedBy(Duration::ofMillis),
+        legacyconfig<Long>("old.path.interval.millis").convertedBy(Duration::ofMillis),
         newconfig("new.path.interval")
     )
 
@@ -23,7 +23,7 @@ class Foo {
 
     val fallback: Int = ConfigValueSupplier.FallbackSupplier(
         legacyconfig("some.old.path"),
-        newconfig<Duration>("some.new.path").transformedBy { it.toMillis().toInt() }
+        newconfig<Duration>("some.new.path").convertedBy { it.toMillis().toInt() }
     ).get()
 
 //    // Deprecated - do we care about this?  I would like to at least make sure it's doable.

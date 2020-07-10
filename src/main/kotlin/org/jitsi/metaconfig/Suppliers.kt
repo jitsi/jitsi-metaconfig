@@ -32,16 +32,19 @@ sealed class ConfigValueSupplier<ValueType : Any> {
     }
 
     /**
-     * Transforms the result of [origSupplier] using the given [transformer]
-     * function
+     * Converts the type of the result of [origSupplier] from [OriginalType] to
+     * [NewType] using the given [converter] function.
+     *
+     * TODO: is there a use case for a 'transformer' which transforms the value but
+     * doesn't change the type?
      */
-    class TransformingSupplier<OriginalType : Any, NewType : Any>(
+    class TypeConvertingSupplier<OriginalType : Any, NewType : Any>(
         private val origSupplier: ConfigValueSupplier<OriginalType>,
-        private val transformer: (OriginalType) -> NewType
+        private val converter: (OriginalType) -> NewType
     ) : ConfigValueSupplier<NewType>() {
 
         override fun get(): NewType {
-            return transformer(origSupplier.get())
+            return converter(origSupplier.get())
         }
     }
 
@@ -65,6 +68,6 @@ sealed class ConfigValueSupplier<ValueType : Any> {
  * value of type [NewType] via the given [transformer] function.
  */
 fun <OriginalType : Any, NewType : Any>
-ConfigValueSupplier<OriginalType>.transformedBy(transformer: (OriginalType) -> NewType) : ConfigValueSupplier.TransformingSupplier<OriginalType, NewType> {
-    return ConfigValueSupplier.TransformingSupplier(this, transformer)
+ConfigValueSupplier<OriginalType>.convertedBy(transformer: (OriginalType) -> NewType) : ConfigValueSupplier.TypeConvertingSupplier<OriginalType, NewType> {
+    return ConfigValueSupplier.TypeConvertingSupplier(this, transformer)
 }
