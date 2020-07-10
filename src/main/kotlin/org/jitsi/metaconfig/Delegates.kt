@@ -14,9 +14,8 @@ class ConfigDelegate<T : Any>(private val supplier: ConfigValueSupplier<T>) {
     }
 }
 /**
- * A helper function to create a [ConfigDelegate]
+ * A helper function to create a [ConfigDelegate] from a variable amount of [ConfigValueSupplier]s
  */
-@OptIn(ExperimentalStdlibApi::class)
 inline fun <reified T : Any> config(vararg suppliers: ConfigValueSupplier<T>): ConfigDelegate<T> {
-    return ConfigDelegate(ConfigValueSupplier.FallbackSupplier<T>(suppliers.toList()))
+    return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(*suppliers))
 }

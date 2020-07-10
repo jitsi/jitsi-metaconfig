@@ -3,12 +3,11 @@ package org.jitsi.metaconfig
 import kotlin.reflect.KType
 
 
-// TODO: looking surprisingly good, I think.  What remains is QOL-type fixes.  Right now
-// we don't use ConfigResult, but it could be useful to change it to include the source
-// in the not-found case so we can give some good errors if something isn't found anywhere?
-// look into that and see if it would be useful.  can also get rid of the old attempts since
-// everything is in git now.  try more tests.  try from java.  look at use cases in jvb and
-// see how they go.  **look at how testing will work**
+// TODO: looking surprisingly good, I think.  What remains is QOL-type fixes.
+// 1) try more tests.
+// 2) try from java.
+// 3) look at use cases in jvb and see how they go.
+// 4) **look at how testing will work**
 
 sealed class ConfigValueSupplier<ValueType : Any> {
     /**
@@ -21,9 +20,9 @@ sealed class ConfigValueSupplier<ValueType : Any> {
      * Reads the given [key] from [source] as [type]
      */
     class ConfigSourceSupplier<ValueType : Any>(
-        val key: String,
-        val source: ConfigSource,
-        val type: KType
+        private val key: String,
+        private val source: ConfigSource,
+        private val type: KType
     ) : ConfigValueSupplier<ValueType>() {
 
         @Suppress("UNCHECKED_CAST")
