@@ -2,6 +2,14 @@ package org.jitsi.metaconfig
 
 import kotlin.reflect.KType
 
+
+// TODO: looking surprisingly good, I think.  What remains is QOL-type fixes.  Right now
+// we don't use ConfigResult, but it could be useful to change it to include the source
+// in the not-found case so we can give some good errors if something isn't found anywhere?
+// look into that and see if it would be useful.  can also get rid of the old attempts since
+// everything is in git now.  try more tests.  try from java.  look at use cases in jvb and
+// see how they go.  **look at how testing will work**
+
 sealed class ConfigValueSupplier<ValueType : Any> {
     /**
      * Get the value from this supplier.  Throws [ConfigPropertyNotFoundException]

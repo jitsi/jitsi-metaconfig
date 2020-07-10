@@ -1,7 +1,7 @@
 package org.jitsi.metaconfig
 
-import org.jitsi.metaconfig.playground.MapConfigSource
 import java.time.Duration
+import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
 @ExperimentalStdlibApi
@@ -40,8 +40,17 @@ fun main() {
     println(f.interval)
 }
 
-// Functions like these would be defined in the application code as a way to integrate whatever config
-// sources the application had
+// All of the following code would be done in the application repo
+
+class MapConfigSource(private val configValues: Map<String, Any> = mapOf()) : ConfigSource {
+    override val name: String = "map"
+
+    override fun getterFor(type: KType): (String) -> Any {
+        return { configKey ->
+            configValues.getOrElse(configKey) { throw ConfigPropertyNotFoundException("key not found") }
+        }
+    }
+}
 
 val newConfigSource = MapConfigSource(
     mapOf(
