@@ -7,12 +7,17 @@ import kotlin.reflect.typeOf
 @ExperimentalStdlibApi
 class Foo {
     // Simple property
-    val port: Int by config("app.server.port")
+    val port: Int by config(newConfigSource, "app.server.port")
 
     // Fallback property, old config requires transformation of type
     val interval: Duration by config(
-        legacyconfig<Long>("old.path.interval.millis").convertedBy(Duration::ofMillis),
+        from<Long>(legacyConfigSource, "old.path.interval.millis").convertedBy(Duration::ofMillis),
         newconfig("new.path.interval")
+    )
+
+    val bool: Boolean by config(
+        from(legacyConfigSource, "some.path").transformedBy { !it },
+        from(newConfigSource, "some.new.path")
     )
 
     val otherPort: Int = ConfigValueSupplier.ConfigSourceSupplier<Int>(
@@ -25,6 +30,21 @@ class Foo {
     val missingPort: Int? by optionalconfig(
         legacyconfig("some.old.missing.path"),
         newconfig("some.missing.path")
+    )
+
+    // Parsing an enum type
+    // From what I've found, I need the speciifc 'enumFrom' type, as the enum code has to go
+    // through a different path which bounds a generic type via T : Enum<T>.
+    // If i can find a way to create an enum from a KType and a String, then this can be done
+    // in the overridden 'getterFor' method.
+    // TODO: can I mix suppliers here?  I.e. could I grab it as a string and convert to an enum?
+    val enum: Colors by config(
+        enumFrom(newConfigSource, "color"),
+        // If an enum had a value removed and we needed to translate it to another value, could do
+        // this
+        from<String>(legacyConfigSource, "old.path").convertedBy {
+            Colors.ORANGE
+        }
     )
 
 //    val fallback: Int = ConfigValueSupplier.FallbackSupplier(
@@ -44,6 +64,7 @@ fun main() {
     val f = Foo()
     println(f.port)
     println(f.missingPort)
+    println(f.enum)
     println(f.interval)
 }
 
@@ -57,29 +78,47 @@ class MapConfigSource(private val configValues: Map<String, Any> = mapOf()) : Co
             configValues.getOrElse(configKey) { throw ConfigPropertyNotFoundException("key not found") }
         }
     }
+
+    override fun <T : Enum<T>> getterFor(enumClazz: Class<T>): (String) -> T {
+        TODO("Not yet implemented")
+    }
+
+//    override fun <T : Enum<T>> getterFor(): (String) -> T {
+//        return { configKey ->
+//            configValues[configKey] as T
+////            configValues.getOrElse(configKey) { throw ConfigPropertyNotFoundException("key not found") }
+//        }
+//    }
 }
 
-val newConfigSource = MapConfigSource(
+enum class Colors {
+    ORANGE,
+    WHITE,
+    BLACK
+}
+
+private val newConfigSource = MapConfigSource(
     mapOf(
         "app.server.port" to 8080,
-        "new.path.interval" to Duration.ofSeconds(5)
+        "new.path.interval" to Duration.ofSeconds(5),
+        "color" to "ORANGE"
     )
 )
-val legacyConfigSource = MapConfigSource(
+private val legacyConfigSource = MapConfigSource(
     mapOf(
         "old.path.interval.millis" to 7000
     )
 )
 
-@ExperimentalStdlibApi
-private inline fun <reified T : Any> config(keyPath: String): ConfigDelegate<T> {
-    return ConfigDelegate<T>(ConfigValueSupplier.ConfigSourceSupplier(keyPath, newConfigSource, typeOf<T>()))
-}
+
+// Supplier helpers
+
 
 @ExperimentalStdlibApi
 private inline fun <reified T : Any> legacyconfig(keyPath: String): ConfigValueSupplier.ConfigSourceSupplier<T> =
-    ConfigValueSupplier.ConfigSourceSupplier(keyPath, legacyConfigSource, typeOf<T>())
+    from(legacyConfigSource, keyPath)
 
 @ExperimentalStdlibApi
 private inline fun <reified T : Any> newconfig(keyPath: String): ConfigValueSupplier.ConfigSourceSupplier<T> =
-    ConfigValueSupplier.ConfigSourceSupplier(keyPath, newConfigSource, typeOf<T>())
+    from(newConfigSource, keyPath)
+

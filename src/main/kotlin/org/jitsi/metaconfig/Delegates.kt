@@ -1,6 +1,7 @@
 package org.jitsi.metaconfig
 
 import kotlin.reflect.KProperty
+import kotlin.reflect.typeOf
 
 /**
  * A delegate for a configuration property which takes a list of [ConfigValueSupplier]s.
@@ -8,8 +9,8 @@ import kotlin.reflect.KProperty
  * found.  If none of the suppliers find the config property, [ConfigPropertyNotFoundException]
  * is thrown.
  */
-class ConfigDelegate<T : Any>(private val supplier: ConfigValueSupplier<T>) {
-    operator fun getValue(thisRef: Any, property: KProperty<*>): T {
+open class ConfigDelegate<T : Any>(private val supplier: ConfigValueSupplier<T>) {
+    open operator fun getValue(thisRef: Any, property: KProperty<*>): T {
         return supplier.get()
     }
 }
@@ -21,16 +22,67 @@ class OptionalConfigDelegate<T : Any>(private val supplier: ConfigValueSupplier<
     operator fun getValue(thisRef: Any, property: KProperty<*>): T? {
         return try {
             supplier.get()
-        } catch (e: ConfigPropertyNotFoundException) {
+        } catch (t: Throwable) {
+            // TODO: originally I caught ConfigPropertyNotFoundException, but that isn't
+            // what's thrown when we query another library.  Is it best to leave this
+            // as catching all exceptions?  Ideally there'd be a hook in the config-specific
+            // code to translate the exception
+//        } catch (e: ConfigPropertyNotFoundException) {
             null
         }
     }
 }
+
+// Simple property with no fallback, just creates a delegate directly
+/**
+ * Helper for a simple property (no fallback)
+ *
+ * val enabled: Boolean by config(someConfigSource, "path.to.enabled")
+ */
+@ExperimentalStdlibApi
+inline fun <reified T : Any> config(configSource: ConfigSource, keyPath: String): ConfigDelegate<T> {
+    return ConfigDelegate<T>(ConfigValueSupplier.ConfigSourceSupplier(keyPath, configSource, typeOf<T>()))
+}
+
+/**
+ * Helper for a simple optional property (no fallback)
+ *
+ * val enabled: Boolean? by optionalConfig(someConfigSource, "path.to.enabled")
+ */
+@ExperimentalStdlibApi
+inline fun <reified T : Any> optionalConfig(configSource: ConfigSource, keyPath: String): OptionalConfigDelegate<T> {
+    return OptionalConfigDelegate<T>(ConfigValueSupplier.ConfigSourceSupplier(keyPath, configSource, typeOf<T>()))
+}
+
+/**
+ * Helper for a simple enum property (no fallback)
+ *
+ * val color: Color by enumConfig(someConfigSource, "path.to.color")
+ */
+@ExperimentalStdlibApi
+inline fun <reified T : Enum<T>> enumConfig(configSource: ConfigSource, keyPath: String): ConfigDelegate<T> {
+    return ConfigDelegate<T>(ConfigValueSupplier.ConfigSourceEnumSupplier(keyPath, configSource, T::class))
+}
+
+
 /**
  * A helper function to create a [ConfigDelegate] from a variable amount of [ConfigValueSupplier]s
+ *
+ * val enabled: Boolean by config(
+ *      from(configSourceA, "config.path.a"),
+ *      from(configSourceB, "config.path.b"),
+ * )
  */
 @ExperimentalStdlibApi
 inline fun <reified T : Any> config(vararg suppliers: ConfigValueSupplier<T>): ConfigDelegate<T> {
+    return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(*suppliers))
+}
+
+/**
+ * Helper to handle enum types
+ */
+@ExperimentalStdlibApi
+inline fun <reified T : Enum<T>> config(vararg suppliers: ConfigValueSupplier.ConfigSourceEnumSupplier<T>): ConfigDelegate<T> {
     return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(*suppliers))
 }
 

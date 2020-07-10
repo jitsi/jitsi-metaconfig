@@ -1,6 +1,8 @@
 package org.jitsi.metaconfig
 
+import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
 
 // TODO: looking surprisingly good, I think.  What remains is QOL-type fixes.
@@ -37,9 +39,21 @@ sealed class ConfigValueSupplier<ValueType : Any> {
     ) : ConfigValueSupplier<ValueType>() {
 
         @Suppress("UNCHECKED_CAST")
-        override fun get(): ValueType {
-            return source.getterFor(type)(key) as ValueType
-        }
+        override fun get(): ValueType = source.getterFor(type)(key) as ValueType
+    }
+
+    /**
+     * Enums require a special supplier which takes a type T bounded by Enum<T>,
+     * otherwise we can't construct a Class<T> that is bounded correctly to
+     * pass to [java.lang.Enum.valueOf].
+     */
+    @ExperimentalStdlibApi
+    class ConfigSourceEnumSupplier<T : Enum<T>>(
+        private val key: String,
+        private val source: ConfigSource,
+        private val clazz: KClass<T>
+    ) : ConfigValueSupplier<T>() {
+        override fun get(): T = source.getterFor(clazz.java)(key)
     }
 
     /**
@@ -53,10 +67,19 @@ sealed class ConfigValueSupplier<ValueType : Any> {
         private val origSupplier: ConfigValueSupplier<OriginalType>,
         private val converter: (OriginalType) -> NewType
     ) : ConfigValueSupplier<NewType>() {
+        override fun get(): NewType = converter(origSupplier.get())
+    }
 
-        override fun get(): NewType {
-            return converter(origSupplier.get())
-        }
+    /**
+     * Transforms the value of the result of [origSupplier] into some new value.
+     *
+     * The new value may have a different type than the original type.
+     */
+    class TransformingSupplier<OriginalType : Any, NewType : Any>(
+        private val origSupplier: ConfigValueSupplier<OriginalType>,
+        private val transformer: (OriginalType) -> NewType
+    ) : ConfigValueSupplier<NewType>() {
+        override fun get(): NewType = transformer(origSupplier.get())
     }
 
     class FallbackSupplier<ValueType : Any>(
@@ -75,10 +98,33 @@ sealed class ConfigValueSupplier<ValueType : Any> {
 }
 
 /**
- * Transform the value retrieved by the receiving [ConfigValueSupplier] (of type [OriginalType]) to a new
- * value of type [NewType] via the given [transformer] function.
+ * Convert the value retrieved by the receiving [ConfigValueSupplier] (of type [OriginalType]) to a new
+ * value of type [NewType] via the given [converter] function.
  */
 fun <OriginalType : Any, NewType : Any>
-ConfigValueSupplier<OriginalType>.convertedBy(transformer: (OriginalType) -> NewType) : ConfigValueSupplier.TypeConvertingSupplier<OriginalType, NewType> {
-    return ConfigValueSupplier.TypeConvertingSupplier(this, transformer)
+ConfigValueSupplier<OriginalType>.convertedBy(converter: (OriginalType) -> NewType) : ConfigValueSupplier.TransformingSupplier<OriginalType, NewType> {
+    return ConfigValueSupplier.TransformingSupplier(this, converter)
 }
+
+/**
+ * Transform the value retrieved by the receiving [ConfigValueSupplier] to a new value of the same type.
+ */
+fun <ValueType : Any>
+ConfigValueSupplier<ValueType>.transformedBy(transformer: (ValueType) -> ValueType) : ConfigValueSupplier.TransformingSupplier<ValueType, ValueType> {
+    return ConfigValueSupplier.TransformingSupplier(this, transformer)
+}
+
+/**
+ * Helper to create a supplier from a [ConfigSource] and a [keyPath]
+ */
+@ExperimentalStdlibApi
+inline fun <reified T : Any> from(configSource: ConfigSource, keyPath: String): ConfigValueSupplier.ConfigSourceSupplier<T> =
+    ConfigValueSupplier.ConfigSourceSupplier(keyPath, configSource, typeOf<T>())
+/**
+ * Parsing enum types requires a special method, as Enums require a special code path to extract correctly.
+ *
+ * We need to have a type T that is bounded via T : Enum<T>
+ */
+@ExperimentalStdlibApi
+inline fun <reified T : Enum<T>> enumFrom(configSource: ConfigSource, keyPath: String): ConfigValueSupplier.ConfigSourceEnumSupplier<T> =
+    ConfigValueSupplier.ConfigSourceEnumSupplier(keyPath, configSource, T::class)

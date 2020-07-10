@@ -19,16 +19,16 @@ interface ConfigSource {
     fun getterFor(type: KType): (String) -> Any
 
     /**
+     * Enums require a special function so that we can get a [T] with
+     * proper type boundaries.
+     */
+    fun <T : Enum<T>> getterFor(enumClazz: Class<T>): (String) -> T
+
+    /**
      * A name for this [ConfigSource] to give extra context in the
      * event of errors
      */
     val name: String
-}
-
-@Suppress("UNCHECKED_CAST")
-@ExperimentalStdlibApi
-inline fun <reified T : Any> ConfigSource.getterFor(): (String) -> T {
-    return getterFor(typeOf<T>()) as (String) -> T
 }
 
 class ConfigPropertyNotFoundException(msg: String) : Exception(msg)
