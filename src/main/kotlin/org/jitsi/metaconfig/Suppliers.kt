@@ -7,6 +7,17 @@ import kotlin.reflect.KType
 // 1) try more tests.
 // 2) try from java.
 // 3) look at use cases in jvb and see how they go.
+// 3a) There's a use case to want a 'null' return value if a field isn't required.  It doesn't look
+//     like we can overload the delegate based on the type being nullable, but we can detect if it's
+//     nullable via the KType, so we could split it in the helper function and have a delegate which,
+//     if it finds nothing, returns null instead of throwing
+// 3b) There's a use case for finding a property value, but it fails to parse (or 'validate': one checked
+//     for an Int being an 'unprivileged' port.  This would throw an exception, but it should be a sub-class
+//     of ConfigPropertyNotFoundException, and bubbled up in some way?
+// 3c) Use case for 'conditional property': a property is only set if a predicate is true.  The old code
+//     threw, but maybe we'd want to just make it nullable instead?  It would look like NullableConfigDelegate,
+//     but take a predicate. (The old code had it throw on access, I think, but we can't do that with the delegate...
+//     we could do that if we stored it as a Supplier instead of the actual type?
 // 4) **look at how testing will work**
 
 sealed class ConfigValueSupplier<ValueType : Any> {

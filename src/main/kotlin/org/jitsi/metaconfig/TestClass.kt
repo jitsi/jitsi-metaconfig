@@ -21,10 +21,16 @@ class Foo {
         typeOf<Int>()
     ).get()
 
-    val fallback: Int = ConfigValueSupplier.FallbackSupplier(
-        legacyconfig("some.old.path"),
-        newconfig<Duration>("some.new.path").convertedBy { it.toMillis().toInt() }
-    ).get()
+    // Optional property - returns null if it isn't found anywhere
+    val missingPort: Int? by optionalconfig(
+        legacyconfig("some.old.missing.path"),
+        newconfig("some.missing.path")
+    )
+
+//    val fallback: Int = ConfigValueSupplier.FallbackSupplier(
+//        legacyconfig("some.old.path"),
+//        newconfig<Duration>("some.new.path").convertedBy { it.toMillis().toInt() }
+//    ).get()
 
 //    // Deprecated - do we care about this?  I would like to at least make sure it's doable.
 //    private val yetAnotherInterval: Duration by config(
@@ -37,6 +43,7 @@ class Foo {
 fun main() {
     val f = Foo()
     println(f.port)
+    println(f.missingPort)
     println(f.interval)
 }
 
