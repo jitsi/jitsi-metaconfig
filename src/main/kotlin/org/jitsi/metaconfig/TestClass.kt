@@ -7,33 +7,35 @@ import kotlin.reflect.typeOf
 @ExperimentalStdlibApi
 class Foo {
     // Simple property
-    val port: Int by config(newConfigSource, "app.server.port")
+//    val port: Int by config(newConfigSource, "app.server.port")
+    val port: Int by config("app.server.port".from(newConfigSource))
 
     // Fallback property, old config requires transformation of type
+//    val interval: Duration by config(
+//        from<Long>(legacyConfigSource, "old.path.interval.millis").convertedBy(Duration::ofMillis),
+//        newconfig("new.path.interval")
+//    )
     val interval: Duration by config(
-        from<Long>(legacyConfigSource, "old.path.interval.millis").convertedBy(Duration::ofMillis),
-        newconfig("new.path.interval")
+        "old.path.interval.millis".from(legacyConfigSource).asType<Long>().andConvertBy(Duration::ofMillis),
+        "new.path.interval".from(newConfigSource).asType<Duration>()
     )
 
-    val x: ConfigValueSupplier<Boolean> = from(legacyConfigSource, "some.path")
-    init {
-        val y = x.transformedBy { !it }
-    }
+//    val bool: Boolean by config(
+//       // TODO: can this be done without having to pass the <Boolean> to from?
+//        // I think it's needed because: if it's the only statement, then it's also the result
+//        // of the expression and we know the result has to be ConfigValueSupplier<Boolean>.  When
+//        // a call is chained onto it, it's not the result anymore so its type can't be inferred
+//        from<Boolean>(legacyConfigSource, "some.path").transformedBy { !it },
+//        from(newConfigSource, "some.new.path")
+//    )
     val bool: Boolean by config(
-       // TODO: can this be done without having to pass the <Boolean> to from?
-        // I think it's needed because: if it's the only statement, then it's also the result
-        // of the expression and we know the result has to be ConfigValueSupplier<Boolean>.  When
-        // a call is chained onto it, it's not the result anymore so its type can't be inferred
-        from<Boolean>(legacyConfigSource, "some.path").transformedBy { !it },
-        from(newConfigSource, "some.new.path")
+        // TODO: can we get rid of the need for 'asType' here? (everywhere when using a delegate?)
+        // --> we can add states that are without the type, and the inline function can add the type
+        // the inline function would take all incomplete state, and test each one and add the type where
+        // needed
+        "some.path".from(legacyConfigSource).asType<Boolean>().andTransformBy { !it },
+        "some.new.path".from(newConfigSource).asType<Boolean>()
     )
-
-
-    val otherPort: Int = ConfigValueSupplier.ConfigSourceSupplier<Int>(
-        "app.server.port",
-        newConfigSource,
-        typeOf<Int>()
-    ).get()
 
     // Optional property - returns null if it isn't found anywhere
     val missingPort: Int? by optionalconfig(

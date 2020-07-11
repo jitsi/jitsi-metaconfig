@@ -83,8 +83,9 @@ sealed class ConfigValueSupplier<ValueType : Any> {
     }
 
     class FallbackSupplier<ValueType : Any>(
-        vararg suppliers: ConfigValueSupplier<ValueType>
+        suppliers: List<ConfigValueSupplier<ValueType>>
     ) : ConfigValueSupplier<ValueType>() {
+        constructor(vararg suppliers: ConfigValueSupplier<ValueType>) : this(suppliers.toList())
         private val mySuppliers = suppliers.toList()
         override fun get(): ValueType {
             for (supplier in mySuppliers) {

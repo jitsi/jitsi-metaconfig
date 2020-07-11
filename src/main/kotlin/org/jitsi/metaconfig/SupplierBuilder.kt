@@ -107,9 +107,22 @@ sealed class SupplierBuilderState {
 
 /**
  * A standalone 'lookup' function which can be called to 'kick off' the construction of a ConfigValueSupplier
+ *
+ * // TODO: still needed after the string one below?
  */
 @ExperimentalStdlibApi
 fun lookup(key: String) = SupplierBuilderState.Incomplete.Empty.lookup(key)
+
+/**
+ * A standalone 'lookup' function which can be called to 'kick off' the construction of a ConfigValueSupplier
+ *
+ * This allows doing:
+ *   val port: Int by config("app.server.port".from(configSource))
+ * instead of
+ *   val port: Int by config(lookup("app.server.port").from(configSource))
+ */
+@ExperimentalStdlibApi
+fun String.from(configSource: ConfigSource) = SupplierBuilderState.Incomplete.Empty.lookup(this).from(configSource)
 
 val source = MapConfigSource()
 

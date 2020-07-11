@@ -45,6 +45,16 @@ inline fun <reified T : Any> config(configSource: ConfigSource, keyPath: String)
     return ConfigDelegate<T>(ConfigValueSupplier.ConfigSourceSupplier(keyPath, configSource, typeOf<T>()))
 }
 
+@ExperimentalStdlibApi
+inline fun <reified T : Any> config(supplierBuilder: SupplierBuilderState.Incomplete.KeyAndSource): ConfigDelegate<T> {
+    return ConfigDelegate(supplierBuilder.asType<T>().build())
+}
+
+@ExperimentalStdlibApi
+fun <T : Any> config(vararg supplierBuilders: SupplierBuilderState.Complete<T>): ConfigDelegate<T> {
+    return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(supplierBuilders.map { it.build()}))
+}
+
 /**
  * Helper for a simple optional property (no fallback)
  *
