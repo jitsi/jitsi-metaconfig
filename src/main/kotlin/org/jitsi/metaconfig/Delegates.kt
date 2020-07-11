@@ -57,43 +57,23 @@ inline fun <reified T : Any> config(supplierBuilder: SupplierBuilderState.Incomp
     return ConfigDelegate(supplierBuilder.asType<T>().build())
 }
 
-/**
- * Create a ConfigDelegate from a variable amount of [SupplierBuilderState.Complete]s
- */
 @ExperimentalStdlibApi
-fun <T : Any> config(vararg supplierBuilders: SupplierBuilderState.Complete<T>): ConfigDelegate<T> {
-    return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(supplierBuilders.map { it.build()}))
+inline fun <reified T : Any> config(block: SupplierBuilder<T>.() -> Unit): ConfigDelegate<T> {
+    val supplier = SupplierBuilder<T>(typeOf<T>()).apply(block)
+    return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(supplier.suppliers.map { it.build()}))
 }
 
-/**
- * Create an [OptionalConfigDelegate] from a variable amount of [SupplierBuilderState.Complete]s
- */
 @ExperimentalStdlibApi
-fun <T : Any> optionalconfig(vararg supplierBuilders: SupplierBuilderState.Complete<T>): OptionalConfigDelegate<T> {
-    return OptionalConfigDelegate(ConfigValueSupplier.FallbackSupplier(supplierBuilders.map { it.build()}))
+inline fun <reified T : Any> optionalconfig(block: SupplierBuilder<T>.() -> Unit): OptionalConfigDelegate<T> {
+    val supplier = SupplierBuilder<T>(typeOf<T>()).apply(block)
+    return OptionalConfigDelegate(ConfigValueSupplier.FallbackSupplier(supplier.suppliers.map { it.build()}))
 }
 
-
-/**
- * Helper for a simple optional property (no fallback)
- *
- * val enabled: Boolean? by optionalConfig(someConfigSource, "path.to.enabled")
- */
-//@ExperimentalStdlibApi
-//inline fun <reified T : Any> optionalConfig(configSource: ConfigSource, keyPath: String): OptionalConfigDelegate<T> {
-//    return OptionalConfigDelegate<T>(ConfigValueSupplier.ConfigSourceSupplier(keyPath, configSource, typeOf<T>()))
-//}
-
-/**
- * Helper for a simple enum property (no fallback)
- *
- * val color: Color by enumConfig(someConfigSource, "path.to.color")
- */
 @ExperimentalStdlibApi
-inline fun <reified T : Enum<T>> enumConfig(configSource: ConfigSource, keyPath: String): ConfigDelegate<T> {
-    return ConfigDelegate<T>(ConfigValueSupplier.ConfigSourceEnumSupplier(keyPath, configSource, T::class))
+inline fun <reified T : Enum<T>> enumconfig(vararg supplierBuilders: SupplierBuilderState.Complete<String>): ConfigDelegate<T> {
+    TODO()
+//    return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(supplierBuilders.map { it.build() }))
 }
-
 
 /**
  * A helper function to create a [ConfigDelegate] from a variable amount of [ConfigValueSupplier]s
@@ -107,19 +87,3 @@ inline fun <reified T : Enum<T>> enumConfig(configSource: ConfigSource, keyPath:
 inline fun <reified T : Any> config(vararg suppliers: ConfigValueSupplier<T>): ConfigDelegate<T> {
     return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(*suppliers))
 }
-
-/**
- * Helper to handle enum types
- */
-@ExperimentalStdlibApi
-inline fun <reified T : Enum<T>> config(vararg suppliers: ConfigValueSupplier.ConfigSourceEnumSupplier<T>): ConfigDelegate<T> {
-    return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(*suppliers))
-}
-
-// NOTE(brian): I tried to make this invisible and just use config (above).  'config' _can_ determine
-// whether or not the type is nullable via KType and then return a different delegate, but the issue is with
-// the return value of 'config': we can't combine 'OptionalConfigDelegate' and 'ConfigDelegate' under a common
-// interface since their return types differ (T vs T?). So instead I've added this to separate them.
-//inline fun <reified T : Any> optionalconfig(vararg suppliers: ConfigValueSupplier<T>): OptionalConfigDelegate<T> {
-//    return OptionalConfigDelegate(ConfigValueSupplier.FallbackSupplier(*suppliers))
-//}

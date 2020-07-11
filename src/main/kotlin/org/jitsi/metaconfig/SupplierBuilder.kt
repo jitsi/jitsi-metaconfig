@@ -41,6 +41,24 @@ sealed class SupplierBuilderState {
                 return TypeConversion(key, source, type, converter)
             }
 
+            /**
+             * We allow updating the type here so that helper functions can fill in the type
+             * automatically (since they can derive it from the call) so the caller doesn't have
+             * to, however, the helpers will use the final type as a guess; if the caller wants
+             * to retrieve the property as another type and then convert it, we need to let them
+             * set the retrieved type via this asType call and then use [andConvertBy].  For example:
+             * val bool: Boolean by config {
+             *     // No need to use 'asType<Boolean>', we can determine that
+             *     "app.enabled".from(newConfigSource)
+             *     // Here the caller didn't want to retrieve it as bool, so they override the type
+             *     // via another call to 'asType' and then convert the value to a Boolean.
+             *     "app.enabled".from(newConfigSource).asType<Int>.andConvertBy { it > 0 }
+             * }
+             */
+            inline fun <reified R : Any> asType(): NoTransformation<R> {
+                return NoTransformation<R>(key, source, typeOf<R>())
+            }
+
             override fun build(): ConfigValueSupplier<T> {
                 return ConfigValueSupplier.ConfigSourceSupplier<T>(key, source, type)
             }
@@ -72,7 +90,7 @@ sealed class SupplierBuilderState {
         ) : Complete<NewType>() {
             override fun build(): ConfigValueSupplier<NewType> {
                 val sourceSupplier = ConfigValueSupplier.ConfigSourceSupplier<OriginalType>(key, source, originalType)
-                return ConfigValueSupplier.TypeConvertingSupplier<OriginalType, NewType>(sourceSupplier, converter)
+                return ConfigValueSupplier.TypeConvertingSupplier(sourceSupplier, converter)
             }
         }
     }
@@ -101,17 +119,33 @@ sealed class SupplierBuilderState {
             inline fun <reified T : Any> asType(): Complete.NoTransformation<T> {
                 return Complete.NoTransformation(key, source, typeOf<T>())
             }
+            fun <T : Any> asType(type: KType): Complete.NoTransformation<T> {
+                return Complete.NoTransformation(key, source, type)
+            }
         }
     }
 }
 
 /**
- * A standalone 'lookup' function which can be called to 'kick off' the construction of a ConfigValueSupplier
- *
- * // TODO: still needed after the string one below?
+ * This class enables us to implicitly inject the type when a caller is building a property, for example:
+ * val bool: Boolean by config {
+ *     "some.path".from(configSource) // no need to explicitly set the type
+ *     "some.other.path".from(configSource).andTransformBy { !it } // again, don't need to set the type
+ *      // can override the inferred type when you want to convert
+ *     "some.third.path".frorm(configSource).asType<Int>().andConvertBy { it > 0 }
+ * }
  */
 @ExperimentalStdlibApi
-fun lookup(key: String) = SupplierBuilderState.Incomplete.Empty.lookup(key)
+class SupplierBuilder<T : Any>(val finalType: KType) {
+    val suppliers = mutableListOf<SupplierBuilderState.Complete<T>>()
+
+    fun retrieve(sbs: SupplierBuilderState.Complete<T>) {
+        suppliers += sbs
+    }
+
+    fun String.from(configSource: ConfigSource) =
+        SupplierBuilderState.Incomplete.Empty.lookup(this).from(configSource).asType<T>(finalType)
+}
 
 /**
  * A standalone 'lookup' function which can be called to 'kick off' the construction of a ConfigValueSupplier
@@ -124,29 +158,3 @@ fun lookup(key: String) = SupplierBuilderState.Incomplete.Empty.lookup(key)
 @ExperimentalStdlibApi
 fun String.from(configSource: ConfigSource) = SupplierBuilderState.Incomplete.Empty.lookup(this).from(configSource)
 
-val source = MapConfigSource()
-
-fun <T : Any> configs(vararg supplier: ConfigValueSupplier<T>) {
-
-}
-
-@ExperimentalStdlibApi
-fun <T : Any>configs2(vararg supplierBuilders: SupplierBuilderState.Complete<T>): ConfigDelegate<T> {
-    val suppliers = supplierBuilders.map { it.build() }
-    return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(suppliers))
-}
-
-@ExperimentalStdlibApi
-fun bar() {
-    configs(
-        lookup("some.key").from(source).asType<Long>().build(),
-        lookup("some.key").from(source).asType<Duration>().andConvertBy { it.toMillis() }.build()
-    )
-    configs2(
-        lookup("some.key").from(source).asType<Long>(),
-        lookup("some.key").from(source).asType<Duration>().andConvertBy { it.toMillis() }
-    )
-    val z = lookup("some.key")
-    val x = lookup("some.key").from(source).asType<Long>().andTransformBy { it * 2 }.build()
-    val y = lookup("some.key").from(source).asType<Long>().andConvertBy { Duration.ofMillis(it) }.build()
-}
