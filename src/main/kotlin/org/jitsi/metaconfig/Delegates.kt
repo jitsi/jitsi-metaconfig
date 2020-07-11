@@ -1,5 +1,6 @@
 package org.jitsi.metaconfig
 
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.typeOf
 

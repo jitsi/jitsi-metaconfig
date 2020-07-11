@@ -15,10 +15,19 @@ class Foo {
         newconfig("new.path.interval")
     )
 
+    val x: ConfigValueSupplier<Boolean> = from(legacyConfigSource, "some.path")
+    init {
+        val y = x.transformedBy { !it }
+    }
     val bool: Boolean by config(
-        from(legacyConfigSource, "some.path").transformedBy { !it },
+       // TODO: can this be done without having to pass the <Boolean> to from?
+        // I think it's needed because: if it's the only statement, then it's also the result
+        // of the expression and we know the result has to be ConfigValueSupplier<Boolean>.  When
+        // a call is chained onto it, it's not the result anymore so its type can't be inferred
+        from<Boolean>(legacyConfigSource, "some.path").transformedBy { !it },
         from(newConfigSource, "some.new.path")
     )
+
 
     val otherPort: Int = ConfigValueSupplier.ConfigSourceSupplier<Int>(
         "app.server.port",
@@ -82,13 +91,6 @@ class MapConfigSource(private val configValues: Map<String, Any> = mapOf()) : Co
     override fun <T : Enum<T>> getterFor(enumClazz: Class<T>): (String) -> T {
         TODO("Not yet implemented")
     }
-
-//    override fun <T : Enum<T>> getterFor(): (String) -> T {
-//        return { configKey ->
-//            configValues[configKey] as T
-////            configValues.getOrElse(configKey) { throw ConfigPropertyNotFoundException("key not found") }
-//        }
-//    }
 }
 
 enum class Colors {

@@ -75,11 +75,11 @@ sealed class ConfigValueSupplier<ValueType : Any> {
      *
      * The new value may have a different type than the original type.
      */
-    class TransformingSupplier<OriginalType : Any, NewType : Any>(
-        private val origSupplier: ConfigValueSupplier<OriginalType>,
-        private val transformer: (OriginalType) -> NewType
-    ) : ConfigValueSupplier<NewType>() {
-        override fun get(): NewType = transformer(origSupplier.get())
+    class ValueTransformingSupplier<ValueType : Any>(
+        private val origSupplier: ConfigValueSupplier<ValueType>,
+        private val transformer: (ValueType) -> ValueType
+    ) : ConfigValueSupplier<ValueType>() {
+        override fun get(): ValueType = transformer(origSupplier.get())
     }
 
     class FallbackSupplier<ValueType : Any>(
@@ -102,17 +102,23 @@ sealed class ConfigValueSupplier<ValueType : Any> {
  * value of type [NewType] via the given [converter] function.
  */
 fun <OriginalType : Any, NewType : Any>
-ConfigValueSupplier<OriginalType>.convertedBy(converter: (OriginalType) -> NewType) : ConfigValueSupplier.TransformingSupplier<OriginalType, NewType> {
-    return ConfigValueSupplier.TransformingSupplier(this, converter)
+ConfigValueSupplier<OriginalType>.convertedBy(converter: (OriginalType) -> NewType) : ConfigValueSupplier.TypeConvertingSupplier<OriginalType, NewType> {
+    return ConfigValueSupplier.TypeConvertingSupplier(this, converter)
 }
 
 /**
  * Transform the value retrieved by the receiving [ConfigValueSupplier] to a new value of the same type.
  */
-fun <ValueType : Any>
-ConfigValueSupplier<ValueType>.transformedBy(transformer: (ValueType) -> ValueType) : ConfigValueSupplier.TransformingSupplier<ValueType, ValueType> {
-    return ConfigValueSupplier.TransformingSupplier(this, transformer)
+inline fun <ValueType : Any>
+ConfigValueSupplier<ValueType>.transformedBy(noinline transformer: (ValueType) -> ValueType) : ConfigValueSupplier.ValueTransformingSupplier<ValueType> {
+    return ConfigValueSupplier.ValueTransformingSupplier(this, transformer)
 }
+
+// Doesn't help
+//inline infix fun <ValueType : Any>
+//        ConfigValueSupplier<ValueType>.transformedBy2(noinline transformer: (ValueType) -> ValueType) : ConfigValueSupplier.TransformingSupplier2<ValueType> {
+//    return ConfigValueSupplier.TransformingSupplier2(this, transformer)
+//}
 
 /**
  * Helper to create a supplier from a [ConfigSource] and a [keyPath]
@@ -120,6 +126,11 @@ ConfigValueSupplier<ValueType>.transformedBy(transformer: (ValueType) -> ValueTy
 @ExperimentalStdlibApi
 inline fun <reified T : Any> from(configSource: ConfigSource, keyPath: String): ConfigValueSupplier.ConfigSourceSupplier<T> =
     ConfigValueSupplier.ConfigSourceSupplier(keyPath, configSource, typeOf<T>())
+
+@ExperimentalStdlibApi
+inline fun <reified T : Any> fromWithClass(configSource: ConfigSource, keyPath: String, valueType: KClass<T>): ConfigValueSupplier.ConfigSourceSupplier<T> =
+    ConfigValueSupplier.ConfigSourceSupplier(keyPath, configSource, typeOf<T>())
+
 /**
  * Parsing enum types requires a special method, as Enums require a special code path to extract correctly.
  *
