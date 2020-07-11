@@ -132,9 +132,8 @@ fun <T : Any> configs(vararg supplier: ConfigValueSupplier<T>) {
 
 @ExperimentalStdlibApi
 fun <T : Any>configs2(vararg supplierBuilders: SupplierBuilderState.Complete<T>): ConfigDelegate<T> {
-    //TODO: add/change ctor to FallbackSupplier which takes a list instead of forcing into a type array to spread here
-    val suppliers = supplierBuilders.map { it.build() }.toTypedArray()
-    return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(*suppliers))
+    val suppliers = supplierBuilders.map { it.build() }
+    return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(suppliers))
 }
 
 @ExperimentalStdlibApi

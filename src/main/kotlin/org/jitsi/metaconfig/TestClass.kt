@@ -62,6 +62,16 @@ class Foo {
         }
     )
 
+    // If we change the helpers to plug in the type automatically, then we can implement enums by having the
+    // supplier grab them as a string and then converting--it's a little sneaky (it would be confusing if someone saw
+    // the type as string when they expected enum), but it would be simple.
+    // another option is to build a proper supplier around the enum type, but have the enumconfig helper create its
+    // _own_ supplier using the key and source, but grab it as a string (we'd have to also apply any transformers
+    // on the original supplier--which actually would be awkward in option 1, so this is probably best)
+    val color: Colors by enumconfig(
+        "color".from(newConfigSource)
+    )
+
 //    val fallback: Int = ConfigValueSupplier.FallbackSupplier(
 //        legacyconfig("some.old.path"),
 //        newconfig<Duration>("some.new.path").convertedBy { it.toMillis().toInt() }
