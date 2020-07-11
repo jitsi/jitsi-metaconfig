@@ -38,9 +38,13 @@ class Foo {
     )
 
     // Optional property - returns null if it isn't found anywhere
+//    val missingPort: Int? by optionalconfig(
+//        legacyconfig("some.old.missing.path"),
+//        newconfig("some.missing.path")
+//    )
     val missingPort: Int? by optionalconfig(
-        legacyconfig("some.old.missing.path"),
-        newconfig("some.missing.path")
+        "some.old.missing.path".from(legacyConfigSource).asType<Int>(),
+        "some.missing.path".from(newConfigSource).asType<Int>()
     )
 
     // Parsing an enum type
