@@ -4,34 +4,72 @@ import java.time.Duration
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
+/**
+ * State classes to aid in the construction of a [ConfigValueSupplier].
+ *
+ * These classes allow constructing the values needed to build a [ConfigValueSupplier] piece-by-piece, and only
+ * allow the creation of a [ConfigValueSupplier] when all the required pieces are present.  Optional operations
+ * can be added as well (for doing value or type conversions).
+ *
+ * Note that currently the construction must be performed in a specific
+ * order: (key, source, type [,valueTransformation|typeTransformation]).  And only one transformation
+ * (value or type) is allowed.  All of this could be changed by adding the more methods to the different states.
+ */
 @ExperimentalStdlibApi
 sealed class SupplierBuilderState {
     sealed class Complete<T : Any> : SupplierBuilderState() {
+        /**
+         * Build a [ConfigValueSupplier].  Required for any subclass of [Complete].
+         */
         abstract fun build(): ConfigValueSupplier<T>
-        class NoTransformation<T : Any>(
-            val key: String,
-            val source: ConfigSource,
-            val type: KType
-        ) : Complete<T>() {
+
+        /**
+         * A simple lookup of a property value from the given source as the given type
+         */
+        class NoTransformation<T : Any>(val key: String, val source: ConfigSource, val type: KType) : Complete<T>() {
+            /**
+             * Add a value transformation operation
+             */
             fun andTransformBy(transformer: (T) -> T): ValueTransformation<T> {
                 return ValueTransformation<T>(key, source, type, transformer)
             }
 
-            fun <NewType : Any> andConvertBy(converter: (T) -> NewType): TypeTransformation<T, NewType> {
-                return TypeTransformation(key, source, type, converter)
+            /**
+             * Add a type conversion operation
+             */
+            fun <NewType : Any> andConvertBy(converter: (T) -> NewType): TypeConversion<T, NewType> {
+                return TypeConversion(key, source, type, converter)
             }
 
             override fun build(): ConfigValueSupplier<T> {
                 return ConfigValueSupplier.ConfigSourceSupplier<T>(key, source, type)
             }
         }
-        class ValueTransformation<T : Any>(val key: String, val source: ConfigSource, val type: KType, val transformer: (T) -> T) : Complete<T>() {
+
+        /**
+         * A lookup which transforms the value in some way
+         */
+        class ValueTransformation<T : Any>(
+            val key: String,
+            val source: ConfigSource,
+            val type: KType,
+            val transformer: (T) -> T
+        ) : Complete<T>() {
             override fun build(): ConfigValueSupplier<T> {
                 val sourceSupplier = ConfigValueSupplier.ConfigSourceSupplier<T>(key, source, type)
                 return ConfigValueSupplier.ValueTransformingSupplier<T>(sourceSupplier, transformer)
             }
         }
-        class TypeTransformation<OriginalType : Any, NewType : Any>(val key: String, val source: ConfigSource, val originalType: KType, val converter: (OriginalType) -> NewType) : Complete<NewType>() {
+
+        /**
+         * A lookup which converts the type the value was retrieved as to another type
+         */
+        class TypeConversion<OriginalType : Any, NewType : Any>(
+            val key: String,
+            val source: ConfigSource,
+            val originalType: KType,
+            val converter: (OriginalType) -> NewType
+        ) : Complete<NewType>() {
             override fun build(): ConfigValueSupplier<NewType> {
                 val sourceSupplier = ConfigValueSupplier.ConfigSourceSupplier<OriginalType>(key, source, originalType)
                 return ConfigValueSupplier.TypeConvertingSupplier<OriginalType, NewType>(sourceSupplier, converter)
@@ -40,23 +78,36 @@ sealed class SupplierBuilderState {
     }
 
     sealed class Incomplete : SupplierBuilderState() {
+        /**
+         * The initial empty state
+         */
         object Empty : Incomplete() {
             fun lookup(key: String): KeyOnly = KeyOnly(key)
         }
+
+        /**
+         * Only the config key is present
+         */
         class KeyOnly(val key: String) : Incomplete() {
             fun from(configSource: ConfigSource): KeyAndSource {
                 return KeyAndSource(key, configSource)
             }
         }
+
+        /**
+         * The config key and source are present
+         */
         class KeyAndSource(val key: String, val source: ConfigSource) : Incomplete() {
             inline fun <reified T : Any> asType(): Complete.NoTransformation<T> {
                 return Complete.NoTransformation(key, source, typeOf<T>())
-
             }
         }
     }
 }
 
+/**
+ * A standalone 'lookup' function which can be called to 'kick off' the construction of a ConfigValueSupplier
+ */
 @ExperimentalStdlibApi
 fun lookup(key: String) = SupplierBuilderState.Incomplete.Empty.lookup(key)
 
