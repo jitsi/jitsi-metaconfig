@@ -1,8 +1,6 @@
 package org.jitsi.metaconfig
 
-import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlin.reflect.typeOf
 
 
 // TODO: looking surprisingly good, I think.  What remains is QOL-type fixes.
@@ -12,7 +10,7 @@ import kotlin.reflect.typeOf
 // 3a) There's a use case to want a 'null' return value if a field isn't required.  It doesn't look
 //     like we can overload the delegate based on the type being nullable, but we can detect if it's
 //     nullable via the KType, so we could split it in the helper function and have a delegate which,
-//     if it finds nothing, returns null instead of throwing
+//     if it finds nothing, returns null instead of throwing [DONE]
 // 3b) There's a use case for finding a property value, but it fails to parse (or 'validate': one checked
 //     for an Int being an 'unprivileged' port.  This would throw an exception, but it should be a sub-class
 //     of ConfigPropertyNotFoundException, and bubbled up in some way?
@@ -69,12 +67,10 @@ sealed class ConfigValueSupplier<ValueType : Any> {
     }
 
     class FallbackSupplier<ValueType : Any>(
-        suppliers: List<ConfigValueSupplier<ValueType>>
+        private val suppliers: List<ConfigValueSupplier<ValueType>>
     ) : ConfigValueSupplier<ValueType>() {
-        constructor(vararg suppliers: ConfigValueSupplier<ValueType>) : this(suppliers.toList())
-        private val mySuppliers = suppliers.toList()
         override fun get(): ValueType {
-            for (supplier in mySuppliers) {
+            for (supplier in suppliers) {
                 try {
                     return supplier.get()
                 } catch (e: ConfigPropertyNotFoundException) {}
@@ -83,37 +79,3 @@ sealed class ConfigValueSupplier<ValueType : Any> {
         }
     }
 }
-
-/**
- * Convert the value retrieved by the receiving [ConfigValueSupplier] (of type [OriginalType]) to a new
- * value of type [NewType] via the given [converter] function.
- */
-fun <OriginalType : Any, NewType : Any>
-ConfigValueSupplier<OriginalType>.convertedBy(converter: (OriginalType) -> NewType) : ConfigValueSupplier.TypeConvertingSupplier<OriginalType, NewType> {
-    return ConfigValueSupplier.TypeConvertingSupplier(this, converter)
-}
-
-/**
- * Transform the value retrieved by the receiving [ConfigValueSupplier] to a new value of the same type.
- */
-inline fun <ValueType : Any>
-ConfigValueSupplier<ValueType>.transformedBy(noinline transformer: (ValueType) -> ValueType) : ConfigValueSupplier.ValueTransformingSupplier<ValueType> {
-    return ConfigValueSupplier.ValueTransformingSupplier(this, transformer)
-}
-
-// Doesn't help
-//inline infix fun <ValueType : Any>
-//        ConfigValueSupplier<ValueType>.transformedBy2(noinline transformer: (ValueType) -> ValueType) : ConfigValueSupplier.TransformingSupplier2<ValueType> {
-//    return ConfigValueSupplier.TransformingSupplier2(this, transformer)
-//}
-
-/**
- * Helper to create a supplier from a [ConfigSource] and a [keyPath]
- */
-@ExperimentalStdlibApi
-inline fun <reified T : Any> from(configSource: ConfigSource, keyPath: String): ConfigValueSupplier.ConfigSourceSupplier<T> =
-    ConfigValueSupplier.ConfigSourceSupplier(keyPath, configSource, typeOf<T>())
-
-@ExperimentalStdlibApi
-inline fun <reified T : Any> fromWithClass(configSource: ConfigSource, keyPath: String, valueType: KClass<T>): ConfigValueSupplier.ConfigSourceSupplier<T> =
-    ConfigValueSupplier.ConfigSourceSupplier(keyPath, configSource, typeOf<T>())

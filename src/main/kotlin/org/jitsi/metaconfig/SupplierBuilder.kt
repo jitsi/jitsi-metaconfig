@@ -58,8 +58,6 @@ sealed class SupplierBuilderState {
                 return NoTransformation(key, source, typeOf<R>())
             }
 
-            // We can't conditionally rerturn a ConfigSourceSupplier or a ConfigSourceEnumSupplier, because we
-            // can't build a ConfigSourceEnumSupplie because we don't have a T with the proper bounds
             override fun build(): ConfigValueSupplier<T> {
                 return ConfigValueSupplier.ConfigSourceSupplier<T>(key, source, type)
             }

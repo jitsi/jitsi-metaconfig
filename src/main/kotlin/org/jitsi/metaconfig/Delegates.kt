@@ -57,16 +57,3 @@ inline fun <reified T : Any> optionalconfig(block: SupplierBuilder<T>.() -> Unit
     val supplier = SupplierBuilder<T>(typeOf<T>()).apply(block)
     return OptionalConfigDelegate(ConfigValueSupplier.FallbackSupplier(supplier.suppliers.map { it.build()}))
 }
-
-/**
- * A helper function to create a [ConfigDelegate] from a variable amount of [ConfigValueSupplier]s
- *
- * val enabled: Boolean by config(
- *      from(configSourceA, "config.path.a"),
- *      from(configSourceB, "config.path.b"),
- * )
- */
-@ExperimentalStdlibApi
-inline fun <reified T : Any> config(vararg suppliers: ConfigValueSupplier<T>): ConfigDelegate<T> {
-    return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(*suppliers))
-}
