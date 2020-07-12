@@ -26,30 +26,10 @@ class Foo {
         retrieve("some.missing.path".from(newConfigSource))
     }
 
-    // Parsing an enum type
-    // From what I've found, I need the speciifc 'enumFrom' type, as the enum code has to go
-    // through a different path which bounds a generic type via T : Enum<T>.
-    // If i can find a way to create an enum from a KType and a String, then this can be done
-    // in the overridden 'getterFor' method.
-    // TODO: can I mix suppliers here?  I.e. could I grab it as a string and convert to an enum?
-//    val enum: Colors by config(
-//        enumFrom(newConfigSource, "color"),
-//        // If an enum had a value removed and we needed to translate it to another value, could do
-//        // this
-//        from<String>(legacyConfigSource, "old.path").convertedBy {
-//            Colors.ORANGE
-//        }
-//    )
-
-    // If we change the helpers to plug in the type automatically, then we can implement enums by having the
-    // supplier grab them as a string and then converting--it's a little sneaky (it would be confusing if someone saw
-    // the type as string when they expected enum), but it would be simple.
-    // another option is to build a proper supplier around the enum type, but have the enumconfig helper create its
-    // _own_ supplier using the key and source, but grab it as a string (we'd have to also apply any transformers
-    // on the original supplier--which actually would be awkward in option 1, so this is probably best)
-//    val color: Colors by enumconfig(
-//        "color".from(newConfigSource)
-//    )
+    // Enum type
+    val color: Colors by config {
+        retrieve("color".from(newConfigSource).asType<String>().andConvertBy { enumValueOf<Colors>(it) })
+    }
 
 //    // Deprecated - do we care about this?  I would like to at least make sure it's doable.
 //    private val yetAnotherInterval: Duration by config(
@@ -63,7 +43,7 @@ fun main() {
     val f = Foo()
     println(f.port)
     println(f.missingPort)
-//    println(f.enum)
+    println(f.color)
     println(f.interval)
 }
 
@@ -76,10 +56,6 @@ class MapConfigSource(private val configValues: Map<String, Any> = mapOf()) : Co
         return { configKey ->
             configValues.getOrElse(configKey) { throw ConfigPropertyNotFoundException("key not found") }
         }
-    }
-
-    override fun <T : Enum<T>> getterFor(enumClazz: Class<T>): (String) -> T {
-        TODO("Not yet implemented")
     }
 }
 

@@ -43,20 +43,6 @@ sealed class ConfigValueSupplier<ValueType : Any> {
     }
 
     /**
-     * Enums require a special supplier which takes a type T bounded by Enum<T>,
-     * otherwise we can't construct a Class<T> that is bounded correctly to
-     * pass to [java.lang.Enum.valueOf].
-     */
-    @ExperimentalStdlibApi
-    class ConfigSourceEnumSupplier<T : Enum<T>>(
-        private val key: String,
-        private val source: ConfigSource,
-        private val clazz: KClass<T>
-    ) : ConfigValueSupplier<T>() {
-        override fun get(): T = source.getterFor(clazz.java)(key)
-    }
-
-    /**
      * Converts the type of the result of [origSupplier] from [OriginalType] to
      * [NewType] using the given [converter] function.
      *
@@ -131,12 +117,3 @@ inline fun <reified T : Any> from(configSource: ConfigSource, keyPath: String): 
 @ExperimentalStdlibApi
 inline fun <reified T : Any> fromWithClass(configSource: ConfigSource, keyPath: String, valueType: KClass<T>): ConfigValueSupplier.ConfigSourceSupplier<T> =
     ConfigValueSupplier.ConfigSourceSupplier(keyPath, configSource, typeOf<T>())
-
-/**
- * Parsing enum types requires a special method, as Enums require a special code path to extract correctly.
- *
- * We need to have a type T that is bounded via T : Enum<T>
- */
-@ExperimentalStdlibApi
-inline fun <reified T : Enum<T>> enumFrom(configSource: ConfigSource, keyPath: String): ConfigValueSupplier.ConfigSourceEnumSupplier<T> =
-    ConfigValueSupplier.ConfigSourceEnumSupplier(keyPath, configSource, T::class)

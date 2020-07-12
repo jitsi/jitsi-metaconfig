@@ -69,12 +69,6 @@ inline fun <reified T : Any> optionalconfig(block: SupplierBuilder<T>.() -> Unit
     return OptionalConfigDelegate(ConfigValueSupplier.FallbackSupplier(supplier.suppliers.map { it.build()}))
 }
 
-@ExperimentalStdlibApi
-inline fun <reified T : Enum<T>> enumconfig(vararg supplierBuilders: SupplierBuilderState.Complete<String>): ConfigDelegate<T> {
-    TODO()
-//    return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(supplierBuilders.map { it.build() }))
-}
-
 /**
  * A helper function to create a [ConfigDelegate] from a variable amount of [ConfigValueSupplier]s
  *

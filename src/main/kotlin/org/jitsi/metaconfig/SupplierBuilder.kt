@@ -1,7 +1,9 @@
 package org.jitsi.metaconfig
 
 import java.time.Duration
+import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.typeOf
 
 /**
@@ -56,9 +58,11 @@ sealed class SupplierBuilderState {
              * }
              */
             inline fun <reified R : Any> asType(): NoTransformation<R> {
-                return NoTransformation<R>(key, source, typeOf<R>())
+                return NoTransformation(key, source, typeOf<R>())
             }
 
+            // We can't conditionally rerturn a ConfigSourceSupplier or a ConfigSourceEnumSupplier, because we
+            // can't build a ConfigSourceEnumSupplie because we don't have a T with the proper bounds
             override fun build(): ConfigValueSupplier<T> {
                 return ConfigValueSupplier.ConfigSourceSupplier<T>(key, source, type)
             }
