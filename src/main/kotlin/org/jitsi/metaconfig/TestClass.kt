@@ -49,15 +49,6 @@ fun main() {
 
 // All of the following code would be done in the application repo
 
-class MapConfigSource(private val configValues: Map<String, Any> = mapOf()) : ConfigSource {
-    override val name: String = "map"
-
-    override fun getterFor(type: KType): (String) -> Any {
-        return { configKey ->
-            configValues.getOrElse(configKey) { throw ConfigPropertyNotFoundException("key not found") }
-        }
-    }
-}
 
 enum class Colors {
     ORANGE,
@@ -66,6 +57,7 @@ enum class Colors {
 }
 
 private val newConfigSource = MapConfigSource(
+    "new",
     mapOf(
         "app.server.port" to 8080,
         "new.path.interval" to Duration.ofSeconds(5),
@@ -73,6 +65,7 @@ private val newConfigSource = MapConfigSource(
     )
 )
 private val legacyConfigSource = MapConfigSource(
+    "legacy",
     mapOf(
         "old.path.interval.millis" to 7000
     )
