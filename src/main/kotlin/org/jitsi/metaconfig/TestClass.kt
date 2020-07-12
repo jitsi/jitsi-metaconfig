@@ -77,16 +77,3 @@ private val legacyConfigSource = MapConfigSource(
         "old.path.interval.millis" to 7000
     )
 )
-
-
-// Supplier helpers
-
-
-@ExperimentalStdlibApi
-private inline fun <reified T : Any> legacyconfig(keyPath: String): ConfigValueSupplier.ConfigSourceSupplier<T> =
-    from(legacyConfigSource, keyPath)
-
-@ExperimentalStdlibApi
-private inline fun <reified T : Any> newconfig(keyPath: String): ConfigValueSupplier.ConfigSourceSupplier<T> =
-    from(newConfigSource, keyPath)
-
