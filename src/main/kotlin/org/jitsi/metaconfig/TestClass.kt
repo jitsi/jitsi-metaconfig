@@ -14,7 +14,7 @@ class Foo {
         retrieve("new.path.interval".from(newConfigSource))
     }
 
-    // Transformed properrty
+    // Transformed property
     val bool: Boolean by config {
         retrieve("some.path".from(legacyConfigSource).andTransformBy { !it })
         retrieve("some.new.path".from(newConfigSource))

@@ -1,9 +1,6 @@
 package org.jitsi.metaconfig
 
-import java.time.Duration
-import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.typeOf
 
 /**
@@ -147,6 +144,10 @@ class SupplierBuilder<T : Any>(val finalType: KType) {
         suppliers += sbs
     }
 
+    /**
+     * Once the key and source are set, automatially set the inferred type.  If the user wants to retrieve
+     * as a different type, they can call 'asType' on their own and override the inferred type.
+     */
     fun String.from(configSource: ConfigSource) =
         SupplierBuilderState.Incomplete.Empty.lookup(this).from(configSource).asType<T>(finalType)
 }

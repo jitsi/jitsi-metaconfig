@@ -1,6 +1,5 @@
 package org.jitsi.metaconfig
 
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.typeOf
 
@@ -34,19 +33,9 @@ class OptionalConfigDelegate<T : Any>(private val supplier: ConfigValueSupplier<
     }
 }
 
-// Simple property with no fallback, just creates a delegate directly
 /**
- * Helper for a simple property (no fallback)
- *
- * val enabled: Boolean by config(someConfigSource, "path.to.enabled")
- */
-//@ExperimentalStdlibApi
-//inline fun <reified T : Any> config(configSource: ConfigSource, keyPath: String): ConfigDelegate<T> {
-//    return ConfigDelegate<T>(ConfigValueSupplier.ConfigSourceSupplier(keyPath, configSource, typeOf<T>()))
-//}
-
-/**
- * Create a [ConfigDelegate] from only a key and source and fill in the type automatically, enables doing:
+ * Create a [ConfigDelegate] for a single property (no fallback) from only a key and source and fill in
+ * the type automatically, enables doing:
  *   val port: Int by config("app.server.port".from(configSource))
  * Instead of:
  *   val port: Int by config("app.server.port".from(configSource).asType<Int>())
