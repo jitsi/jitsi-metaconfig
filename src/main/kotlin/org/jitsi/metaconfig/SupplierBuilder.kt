@@ -160,4 +160,3 @@ class SupplierBuilder<T : Any>(val finalType: KType) {
  */
 @ExperimentalStdlibApi
 fun String.from(configSource: ConfigSource) = SupplierBuilderState.Incomplete.Empty.lookup(this).from(configSource)
-

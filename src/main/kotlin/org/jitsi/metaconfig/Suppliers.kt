@@ -1,7 +1,8 @@
+// ktlint-disable filename
+
 package org.jitsi.metaconfig
 
 import kotlin.reflect.KType
-
 
 // TODO: looking surprisingly good, I think.  What remains is QOL-type fixes.
 // 1) try more tests.
@@ -53,7 +54,7 @@ sealed class ConfigValueSupplier<ValueType : Any> {
     ) : ConfigValueSupplier<ValueType>() {
 
         @Suppress("UNCHECKED_CAST")
-        override fun get(): ValueType{
+        override fun get(): ValueType {
             return (source.getterFor(type)(key) as ValueType).also {
                 MetaconfigSettings.logger.debug {
                     "ConfigSourceSupplier: key '$key' with value '$it' (type $type) found in source '${source.name}'"

@@ -1,7 +1,6 @@
 package org.jitsi.metaconfig
 
 import kotlin.reflect.KType
-import kotlin.reflect.typeOf
 
 /**
  * A [ConfigSource] is what is used to retrieve configuration values
