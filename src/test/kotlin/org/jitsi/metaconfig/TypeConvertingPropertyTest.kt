@@ -1,6 +1,5 @@
 package org.jitsi.metaconfig
 
-import MutableMapConfigSource
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import java.time.Duration
