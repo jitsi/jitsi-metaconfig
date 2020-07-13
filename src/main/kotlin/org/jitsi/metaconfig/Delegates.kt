@@ -47,16 +47,15 @@ inline fun <reified T : Any> config(supplierBuilder: SupplierBuilderState.Incomp
 }
 
 @ExperimentalStdlibApi
-inline fun <reified T : Any> config(supplierBuilder: SupplierBuilderState.Complete<T>): ConfigDelegate<T> {
-    return ConfigDelegate(supplierBuilder.build())
-}
-
-@ExperimentalStdlibApi
 inline fun <reified T : Any> config(block: SupplierBuilder<T>.() -> Unit): ConfigDelegate<T> {
     val supplier = SupplierBuilder<T>(typeOf<T>()).apply(block)
     return ConfigDelegate(ConfigValueSupplier.FallbackSupplier(supplier.suppliers.map { it.build()}))
 }
 
+@ExperimentalStdlibApi
+inline fun <reified T : Any> optionalconfig(supplierBuilder: SupplierBuilderState.Incomplete.KeyAndSource): OptionalConfigDelegate<T> {
+    return OptionalConfigDelegate(supplierBuilder.asType<T>().build())
+}
 @ExperimentalStdlibApi
 inline fun <reified T : Any> optionalconfig(block: SupplierBuilder<T>.() -> Unit): OptionalConfigDelegate<T> {
     val supplier = SupplierBuilder<T>(typeOf<T>()).apply(block)
