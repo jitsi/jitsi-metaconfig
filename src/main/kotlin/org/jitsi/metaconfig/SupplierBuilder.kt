@@ -140,10 +140,10 @@ sealed class SupplierBuilderState {
  */
 @ExperimentalStdlibApi
 class SupplierBuilder<T : Any>(val finalType: KType) {
-    val suppliers = mutableListOf<SupplierBuilderState.Complete<T>>()
+    val suppliers = mutableListOf<ConfigValueSupplier<T>>()
 
     fun retrieve(sbs: SupplierBuilderState.Complete<T>) {
-        suppliers += sbs
+        suppliers += sbs.build()
     }
 
     /**
@@ -155,7 +155,7 @@ class SupplierBuilder<T : Any>(val finalType: KType) {
 }
 
 /**
- * A standalone 'lookup' function which can be called to 'kick off' the construction of a ConfigValueSupplier
+ * A standalone 'lookup' function which can be called to 'kick off' the construction of a [SupplierBuilderState]
  *
  * This allows doing:
  *   val port: Int by config("app.server.port".from(configSource))
