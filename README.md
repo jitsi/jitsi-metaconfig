@@ -1,3 +1,5 @@
+![Java CI with Maven](https://github.com/bbaldino/jitsi-metaconfig/workflows/Java%20CI%20with%20Maven/badge.svg)
+
 # jitsi-metaconfig
 
 jitsi-metaconfig is _not_ a config library.  jitsi-metaconfig helps solve the problems around dealing with configuration properties, such as:
