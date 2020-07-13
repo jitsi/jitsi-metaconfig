@@ -138,7 +138,7 @@ sealed class SupplierBuilderState {
  *     "some.path".from(configSource) // no need to explicitly set the type
  *     "some.other.path".from(configSource).andTransformBy { !it } // again, don't need to set the type
  *      // can override the inferred type when you want to convert
- *     "some.third.path".frorm(configSource).asType<Int>().andConvertBy { it > 0 }
+ *     "some.third.path".from(configSource).asType<Int>().andConvertBy { it > 0 }
  * }
  */
 @ExperimentalStdlibApi
