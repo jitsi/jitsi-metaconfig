@@ -1,5 +1,9 @@
 package org.jitsi.metaconfig
 
+import org.jitsi.metaconfig.supplier.ConfigSourceSupplier
+import org.jitsi.metaconfig.supplier.ConfigValueSupplier
+import org.jitsi.metaconfig.supplier.TypeConvertingSupplier
+import org.jitsi.metaconfig.supplier.ValueTransformingSupplier
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
@@ -59,7 +63,7 @@ sealed class SupplierBuilderState {
             }
 
             override fun build(): ConfigValueSupplier<T> {
-                return ConfigValueSupplier.ConfigSourceSupplier<T>(key, source, type)
+                return ConfigSourceSupplier<T>(key, source, type)
             }
         }
 
@@ -73,8 +77,8 @@ sealed class SupplierBuilderState {
             val transformer: (T) -> T
         ) : Complete<T>() {
             override fun build(): ConfigValueSupplier<T> {
-                val sourceSupplier = ConfigValueSupplier.ConfigSourceSupplier<T>(key, source, type)
-                return ConfigValueSupplier.ValueTransformingSupplier<T>(sourceSupplier, transformer)
+                val sourceSupplier = ConfigSourceSupplier<T>(key, source, type)
+                return ValueTransformingSupplier<T>(sourceSupplier, transformer)
             }
         }
 
@@ -88,8 +92,8 @@ sealed class SupplierBuilderState {
             val converter: (OriginalType) -> NewType
         ) : Complete<NewType>() {
             override fun build(): ConfigValueSupplier<NewType> {
-                val sourceSupplier = ConfigValueSupplier.ConfigSourceSupplier<OriginalType>(key, source, originalType)
-                return ConfigValueSupplier.TypeConvertingSupplier(sourceSupplier, converter)
+                val sourceSupplier = ConfigSourceSupplier<OriginalType>(key, source, originalType)
+                return TypeConvertingSupplier(sourceSupplier, converter)
             }
         }
     }
