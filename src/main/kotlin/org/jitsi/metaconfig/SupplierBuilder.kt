@@ -2,6 +2,7 @@ package org.jitsi.metaconfig
 
 import org.jitsi.metaconfig.supplier.ConfigSourceSupplier
 import org.jitsi.metaconfig.supplier.ConfigValueSupplier
+import org.jitsi.metaconfig.supplier.LambdaSupplier
 import org.jitsi.metaconfig.supplier.TypeConvertingSupplier
 import org.jitsi.metaconfig.supplier.ValueTransformingSupplier
 import kotlin.reflect.KType
@@ -144,6 +145,14 @@ class SupplierBuilder<T : Any>(val finalType: KType) {
 
     fun retrieve(sbs: SupplierBuilderState.Complete<T>) {
         suppliers += sbs.build()
+    }
+
+    /**
+     * [LambdaSupplier]s don't require construction as they are entirely responsible for producing
+     * the value, so they have their own method
+     */
+    fun retrieve(lambda: () -> T) {
+        suppliers += LambdaSupplier(lambda)
     }
 
     /**
