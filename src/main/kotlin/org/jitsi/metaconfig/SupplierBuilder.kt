@@ -1,7 +1,10 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package org.jitsi.metaconfig
 
 import org.jitsi.metaconfig.supplier.ConfigSourceSupplier
 import org.jitsi.metaconfig.supplier.ConfigValueSupplier
+import org.jitsi.metaconfig.supplier.LambdaSupplier
 import org.jitsi.metaconfig.supplier.TypeConvertingSupplier
 import org.jitsi.metaconfig.supplier.ValueTransformingSupplier
 import kotlin.reflect.KType
@@ -34,7 +37,7 @@ sealed class SupplierBuilderState {
              * Add a value transformation operation
              */
             fun andTransformBy(transformer: (T) -> T): ValueTransformation<T> {
-                return ValueTransformation<T>(key, source, type, transformer)
+                return ValueTransformation(key, source, type, transformer)
             }
 
             /**
@@ -63,7 +66,7 @@ sealed class SupplierBuilderState {
             }
 
             override fun build(): ConfigValueSupplier<T> {
-                return ConfigSourceSupplier<T>(key, source, type)
+                return ConfigSourceSupplier(key, source, type)
             }
         }
 
@@ -78,7 +81,7 @@ sealed class SupplierBuilderState {
         ) : Complete<T>() {
             override fun build(): ConfigValueSupplier<T> {
                 val sourceSupplier = ConfigSourceSupplier<T>(key, source, type)
-                return ValueTransformingSupplier<T>(sourceSupplier, transformer)
+                return ValueTransformingSupplier(sourceSupplier, transformer)
             }
         }
 
@@ -135,19 +138,27 @@ sealed class SupplierBuilderState {
  *     "some.path".from(configSource) // no need to explicitly set the type
  *     "some.other.path".from(configSource).andTransformBy { !it } // again, don't need to set the type
  *      // can override the inferred type when you want to convert
- *     "some.third.path".frorm(configSource).asType<Int>().andConvertBy { it > 0 }
+ *     "some.third.path".from(configSource).asType<Int>().andConvertBy { it > 0 }
  * }
  */
 @ExperimentalStdlibApi
 class SupplierBuilder<T : Any>(val finalType: KType) {
-    val suppliers = mutableListOf<SupplierBuilderState.Complete<T>>()
+    val suppliers = mutableListOf<ConfigValueSupplier<T>>()
 
     fun retrieve(sbs: SupplierBuilderState.Complete<T>) {
-        suppliers += sbs
+        suppliers += sbs.build()
     }
 
     /**
-     * Once the key and source are set, automatially set the inferred type.  If the user wants to retrieve
+     * [LambdaSupplier]s don't require construction as they are entirely responsible for producing
+     * the value, so they have their own method
+     */
+    fun retrieve(lambda: () -> T) {
+        suppliers += LambdaSupplier(lambda)
+    }
+
+    /**
+     * Once the key and source are set, automatically set the inferred type.  If the user wants to retrieve
      * as a different type, they can call 'asType' on their own and override the inferred type.
      */
     fun String.from(configSource: ConfigSource) =
@@ -155,7 +166,7 @@ class SupplierBuilder<T : Any>(val finalType: KType) {
 }
 
 /**
- * A standalone 'lookup' function which can be called to 'kick off' the construction of a ConfigValueSupplier
+ * A standalone 'lookup' function which can be called to 'kick off' the construction of a [SupplierBuilderState]
  *
  * This allows doing:
  *   val port: Int by config("app.server.port".from(configSource))
