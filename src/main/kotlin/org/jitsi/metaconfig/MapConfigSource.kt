@@ -17,14 +17,14 @@ class MapConfigSource(
 
     override fun getterFor(type: KType): (String) -> Any {
         return when (type) {
-            typeOf<Boolean>() -> getCatching<Boolean>(type)
-            typeOf<Long>() -> getCatching<Long>(type)
+            typeOf<Boolean>() -> getCatching<Boolean>()
+            typeOf<Long>() -> getCatching<Long>()
             else -> throw ConfigException.UnsupportedType("Type $type not supported by this source")
         }
     }
 
     @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T : Any> getCatching(type: KType): (String) -> T {
+    private inline fun <reified T : Any> getCatching(): (String) -> T {
         return { key ->
             val value = configValues[key] ?: throw ConfigException.UnableToRetrieve.NotFound("not found")
             value as? T ?: throw ConfigException.UnableToRetrieve.WrongType("wrong type")
