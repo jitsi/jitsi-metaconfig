@@ -14,7 +14,8 @@ interface ConfigSource {
      * of the property at the given name as the type referred to by [type].
      *
      * The return getter should return the value corresponding to the given
-     * key, or throw [ConfigPropertyNotFoundException].
+     * key, or throw [ConfigException.UnsupportedType] if the type isn't
+     * supported.
      */
     fun getterFor(type: KType): (String) -> Any
 
@@ -24,5 +25,3 @@ interface ConfigSource {
      */
     val name: String
 }
-
-class ConfigPropertyNotFoundException(msg: String) : Exception(msg)

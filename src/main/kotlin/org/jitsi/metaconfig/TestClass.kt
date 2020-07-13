@@ -1,7 +1,6 @@
 package org.jitsi.metaconfig
 
 import java.time.Duration
-import kotlin.reflect.KType
 
 @ExperimentalStdlibApi
 class Foo {

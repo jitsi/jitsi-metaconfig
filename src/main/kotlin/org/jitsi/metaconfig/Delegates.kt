@@ -6,7 +6,7 @@ import kotlin.reflect.typeOf
 /**
  * A delegate for a configuration property which takes a list of [ConfigValueSupplier]s.
  * The suppliers will be queried, in order, for the value and will stop when it is
- * found.  If none of the suppliers find the config property, [ConfigPropertyNotFoundException]
+ * found.  If none of the suppliers find the config property, [ConfigException.NotFound]
  * is thrown.
  */
 open class ConfigDelegate<T : Any>(private val supplier: ConfigValueSupplier<T>) {
@@ -44,6 +44,11 @@ class OptionalConfigDelegate<T : Any>(private val supplier: ConfigValueSupplier<
 @ExperimentalStdlibApi
 inline fun <reified T : Any> config(supplierBuilder: SupplierBuilderState.Incomplete.KeyAndSource): ConfigDelegate<T> {
     return ConfigDelegate(supplierBuilder.asType<T>().build())
+}
+
+@ExperimentalStdlibApi
+inline fun <reified T : Any> config(supplierBuilder: SupplierBuilderState.Complete<T>): ConfigDelegate<T> {
+    return ConfigDelegate(supplierBuilder.build())
 }
 
 @ExperimentalStdlibApi

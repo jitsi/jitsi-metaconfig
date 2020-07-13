@@ -14,7 +14,9 @@ class MapConfigSource(
 
     override fun getterFor(type: KType): (String) -> Any {
         return { configKey ->
-            configValues.getOrElse(configKey) { throw ConfigPropertyNotFoundException("key not found") }
+            configValues.getOrElse(configKey) {
+                throw ConfigException.UnableToRetrieve.NotFound("key '$configKey' not found in source '$name'")
+            }
         }
     }
 }
