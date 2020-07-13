@@ -14,24 +14,24 @@ class Foo {
     // Simple property
     val enabled: Boolean by config("app.enabled").from(myConfigSource))
 
-	// Optional property
-	val optional: Boolean? by optionalconfig("
+    // Optional property
+    val optional: Boolean? by optionalconfig("
 
-	// Convert the type
-	val interval: Duration by config {
-	    retrieve("app.interval".from(myConfigSource).asType<Long>().andConvertBy(Duration::ofMillis))
-	}
+    // Convert the type
+    val interval: Duration by config {
+        retrieve("app.interval".from(myConfigSource).asType<Long>().andConvertBy(Duration::ofMillis))
+    }
 
-	// Transform the value
-	val enabled: Boolean by config {
-	    retrieve("app.disabled".from(myConfigSource).andTransformBy { !it })
-	}
+    // Transform the value
+    val enabled: Boolean by config {
+        retrieve("app.disabled".from(myConfigSource).andTransformBy { !it })
+    }
 
-	// Search for value in a legacy config file and then the new one
-	val enabled: Boolean by config {
-	    retrieve("old.path.app.enabled".from(legacyConfigSource))
-	    retrieve("new.path.app.enabled".from(newConfigSource))
-	}
+    // Search for value in a legacy config file and then the new one
+    val enabled: Boolean by config {
+        retrieve("old.path.app.enabled".from(legacyConfigSource))
+        retrieve("new.path.app.enabled".from(newConfigSource))
+    }
 }
 ```
 
