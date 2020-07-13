@@ -1,22 +1,33 @@
 package org.jitsi.metaconfig
 
 import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
 /**
- * An implementation of [ConfigSource] which pulls properties from a map
+ * A [ConfigSource] which allows modifying the properties after its creation.
+ *
+ * Useful for testing because the config source can be used by classes but its
+ * values changed later.
  */
 class MapConfigSource(
     override val name: String,
-    private val configValues: Map<String, Any> = mapOf()
-) : ConfigSource {
-    constructor(name: String, vararg props: Pair<String, Any>) : this(name, props.toMap())
+    private val configValues: MutableMap<String, Any> = mutableMapOf()
+) : ConfigSource, MutableMap<String, Any> by configValues {
     constructor(name: String, mapBuilder: MutableMap<String, Any>.() -> Unit) : this(name, LinkedHashMap<String, Any>().apply(mapBuilder))
 
     override fun getterFor(type: KType): (String) -> Any {
-        return { configKey ->
-            configValues.getOrElse(configKey) {
-                throw ConfigException.UnableToRetrieve.NotFound("key '$configKey' not found in source '$name'")
-            }
+        return when (type) {
+            typeOf<Boolean>() -> getCatching<Boolean>(type)
+            typeOf<Long>() -> getCatching<Long>(type)
+            else -> throw ConfigException.UnsupportedType("Type $type not supported by this source")
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private inline fun <reified T : Any> getCatching(type: KType): (String) -> T {
+        return { key ->
+            val value = configValues[key] ?: throw ConfigException.UnableToRetrieve.NotFound("not found")
+            value as? T ?: throw ConfigException.UnableToRetrieve.WrongType("wrong type")
         }
     }
 }

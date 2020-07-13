@@ -6,7 +6,7 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 
 class TransformingPropertyTest : ShouldSpec({
-    val configSrc = MutableMapConfigSource("test")
+    val configSrc = MapConfigSource("test")
 
     context("a class with a property whose value is transformed") {
         val obj = object {

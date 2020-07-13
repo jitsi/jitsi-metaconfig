@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import java.time.Duration
 
 class TypeConvertingPropertyTest : ShouldSpec({
-    val configSrc = MutableMapConfigSource("test")
+    val configSrc = MapConfigSource("test")
 
     context("a class with a proeprty whose type is converted") {
         val obj = object {

@@ -6,7 +6,7 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 
 class SimplePropertyTest : ShouldSpec({
-    val configSrc = MutableMapConfigSource("test")
+    val configSrc = MapConfigSource("test")
     context("a class with a simple property") {
         val obj = object {
             val enabled: Boolean by config("server.enabled".from(configSrc))

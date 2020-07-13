@@ -13,7 +13,7 @@ import kotlin.reflect.KType
 //     if it finds nothing, returns null instead of throwing [DONE]
 // 3b) There's a use case for finding a property value, but it fails to parse (or 'validate': one checked
 //     for an Int being an 'unprivileged' port.  This would throw an exception, but it should be a sub-class
-//     of ConfigPropertyNotFoundException, and bubbled up in some way?
+//     of ConfigPropertyNotFoundException, and bubbled up in some way? [DONE]
 // 3c) Use case for 'conditional property': a property is only set if a predicate is true.  The old code
 //     threw, but maybe we'd want to just make it nullable instead?  It would look like NullableConfigDelegate,
 //     but take a predicate. (The old code had it throw on access, I think, but we can't do that with the delegate...

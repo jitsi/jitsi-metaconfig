@@ -6,8 +6,8 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 
 class FallbackPropertyTest : ShouldSpec({
-    val firstConfigSource = MutableMapConfigSource("legacy config")
-    val secondConfigSource = MutableMapConfigSource("new config")
+    val firstConfigSource = MapConfigSource("legacy config")
+    val secondConfigSource = MapConfigSource("new config")
 
     context("a class with a fallback property") {
         val obj = object {
