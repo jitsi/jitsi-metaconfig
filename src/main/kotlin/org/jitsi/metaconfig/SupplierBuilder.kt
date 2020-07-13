@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package org.jitsi.metaconfig
 
 import org.jitsi.metaconfig.supplier.ConfigSourceSupplier
@@ -35,7 +37,7 @@ sealed class SupplierBuilderState {
              * Add a value transformation operation
              */
             fun andTransformBy(transformer: (T) -> T): ValueTransformation<T> {
-                return ValueTransformation<T>(key, source, type, transformer)
+                return ValueTransformation(key, source, type, transformer)
             }
 
             /**
@@ -64,7 +66,7 @@ sealed class SupplierBuilderState {
             }
 
             override fun build(): ConfigValueSupplier<T> {
-                return ConfigSourceSupplier<T>(key, source, type)
+                return ConfigSourceSupplier(key, source, type)
             }
         }
 
@@ -79,7 +81,7 @@ sealed class SupplierBuilderState {
         ) : Complete<T>() {
             override fun build(): ConfigValueSupplier<T> {
                 val sourceSupplier = ConfigSourceSupplier<T>(key, source, type)
-                return ValueTransformingSupplier<T>(sourceSupplier, transformer)
+                return ValueTransformingSupplier(sourceSupplier, transformer)
             }
         }
 
