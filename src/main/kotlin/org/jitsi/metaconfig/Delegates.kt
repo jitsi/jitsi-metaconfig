@@ -22,12 +22,7 @@ class OptionalConfigDelegate<T : Any>(private val supplier: ConfigValueSupplier<
     operator fun getValue(thisRef: Any, property: KProperty<*>): T? {
         return try {
             supplier.get()
-        } catch (t: Throwable) {
-            // TODO: originally I caught ConfigPropertyNotFoundException, but that isn't
-            // what's thrown when we query another library.  Is it best to leave this
-            // as catching all exceptions?  Ideally there'd be a hook in the config-specific
-            // code to translate the exception
-//        } catch (e: ConfigPropertyNotFoundException) {
+        } catch (t: ConfigException.UnableToRetrieve) {
             null
         }
     }
