@@ -158,7 +158,7 @@ class SupplierBuilder<T : Any>(val finalType: KType) {
     }
 
     /**
-     * Once the key and source are set, automatially set the inferred type.  If the user wants to retrieve
+     * Once the key and source are set, automatically set the inferred type.  If the user wants to retrieve
      * as a different type, they can call 'asType' on their own and override the inferred type.
      */
     fun String.from(configSource: ConfigSource) =
