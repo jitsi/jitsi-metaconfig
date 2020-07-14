@@ -5,9 +5,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, codecov ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, codecov ]
 
 jobs:
   build:
@@ -22,3 +22,5 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+    - name: Code coverage
+        uses: codecov/codecov-action@v1
