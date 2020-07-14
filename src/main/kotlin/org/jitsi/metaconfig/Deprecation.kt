@@ -7,3 +7,7 @@ sealed class Deprecation {
         class Hard(msg: String) : Deprecated(msg)
     }
 }
+
+fun notDeprecated() = Deprecation.NotDeprecated
+fun softDeprecated(msg: String) = Deprecation.Deprecated.Soft(msg)
+fun hardDeprecated(msg: String) = Deprecation.Deprecated.Hard(msg)
