@@ -28,7 +28,7 @@ class FallbackSupplier<ValueType : Any>(
             }
         }
         throw ConfigException.UnableToRetrieve.NotFound(
-            "No suppliers found a value:\n${exceptions.joinToString(separator = "\n")}"
+            "No suppliers found a value:${exceptions.joinToString(prefix = "\n  ", separator = "\n  ")}"
         )
     }
 
