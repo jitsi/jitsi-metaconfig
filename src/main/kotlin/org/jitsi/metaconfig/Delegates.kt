@@ -37,7 +37,6 @@ class OptionalConfigDelegate<T : Any>(private val supplier: ConfigValueSupplier<
  *
  * throws [ConfigException.UnableToRetrieve] if the property couldn't be retrieved
  */
-@ExperimentalStdlibApi
 inline fun <reified T : Any> config(supplierBuilder: SupplierBuilderState.Incomplete.KeyAndSource): ConfigDelegate<T> {
     return ConfigDelegate(supplierBuilder.asType<T>().build())
 }
@@ -48,7 +47,6 @@ inline fun <reified T : Any> config(supplierBuilder: SupplierBuilderState.Incomp
  *
  * throws [ConfigException.UnableToRetrieve] if the property couldn't be retrieved
  */
-@ExperimentalStdlibApi
 inline fun <reified T : Any> config(block: SupplierBuilder<T>.() -> Unit): ConfigDelegate<T> {
     val supplier = SupplierBuilder<T>(typeOf<T>()).apply(block)
     return ConfigDelegate(FallbackSupplier(supplier.suppliers))
@@ -58,7 +56,6 @@ inline fun <reified T : Any> config(block: SupplierBuilder<T>.() -> Unit): Confi
  * Create an [OptionalConfigDelegate] for a single property (no fallback) from only a key and source (filling in
  * the type automatically), returns null if the property couldn't be retrieved
  */
-@ExperimentalStdlibApi
 inline fun <reified T : Any> optionalconfig(supplierBuilder: SupplierBuilderState.Incomplete.KeyAndSource): OptionalConfigDelegate<T> {
     return OptionalConfigDelegate(supplierBuilder.asType<T>().build())
 }
@@ -67,7 +64,6 @@ inline fun <reified T : Any> optionalconfig(supplierBuilder: SupplierBuilderStat
  * Create an [OptionalConfigDelegate] which queries multiple [ConfigValueSupplier]s for a property, returning
  * null if the property couldn't be retrieved
  */
-@ExperimentalStdlibApi
 inline fun <reified T : Any> optionalconfig(block: SupplierBuilder<T>.() -> Unit): OptionalConfigDelegate<T> {
     val builder = SupplierBuilder<T>(typeOf<T>()).apply(block)
     return OptionalConfigDelegate(FallbackSupplier(builder.suppliers))

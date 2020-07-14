@@ -21,7 +21,6 @@ import kotlin.reflect.typeOf
  * order: (key, source, type [,valueTransformation|typeTransformation]).  And only one transformation
  * (value or type) is allowed.  All of this could be changed by adding the more methods to the different states.
  */
-@ExperimentalStdlibApi
 sealed class SupplierBuilderState {
     sealed class Complete<T : Any> : SupplierBuilderState() {
         /**
@@ -141,7 +140,6 @@ sealed class SupplierBuilderState {
  *     "some.third.path".from(configSource).asType<Int>().andConvertBy { it > 0 }
  * }
  */
-@ExperimentalStdlibApi
 class SupplierBuilder<T : Any>(val finalType: KType) {
     val suppliers = mutableListOf<ConfigValueSupplier<T>>()
 
@@ -173,5 +171,4 @@ class SupplierBuilder<T : Any>(val finalType: KType) {
  * instead of
  *   val port: Int by config(lookup("app.server.port").from(configSource))
  */
-@ExperimentalStdlibApi
 fun String.from(configSource: ConfigSource) = SupplierBuilderState.Incomplete.Empty.lookup(this).from(configSource)
