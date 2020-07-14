@@ -1,5 +1,3 @@
-// ktlint-disable filename
-
 package org.jitsi.metaconfig
 
 /**
