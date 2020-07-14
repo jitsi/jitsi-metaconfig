@@ -1,7 +1,7 @@
 package org.jitsi.metaconfig.supplier
 
 import org.jitsi.metaconfig.Deprecation
-import org.jitsi.metaconfig.notDeprecated
+import org.jitsi.metaconfig.noDeprecation
 
 /**
  * Converts the type of the result of [originalSupplier] from [OriginalType] to
@@ -13,7 +13,7 @@ class TypeConvertingSupplier<OriginalType : Any, NewType : Any>(
     private val converter: (OriginalType) -> NewType
 ) : ConfigValueSupplier<NewType>(deprecation) {
     constructor(originalSupplier: ConfigValueSupplier<OriginalType>, converter: (OriginalType) -> NewType) :
-        this(originalSupplier, notDeprecated(), converter)
+        this(originalSupplier, noDeprecation(), converter)
 
     override fun doGet(): NewType = converter(originalSupplier.get())
 
