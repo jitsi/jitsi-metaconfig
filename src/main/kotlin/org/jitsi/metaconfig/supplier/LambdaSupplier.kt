@@ -1,18 +1,12 @@
 package org.jitsi.metaconfig.supplier
 
-import org.jitsi.metaconfig.MetaconfigSettings
-
 class LambdaSupplier<ValueType : Any>(
+    private val context: String,
     private val supplier: () -> ValueType
-) : ConfigValueSupplier<ValueType> {
+) : ConfigValueSupplier<ValueType>() {
+    constructor(supplier: () -> ValueType) : this("", supplier)
 
-    override fun get(): ValueType {
-        return supplier().also {
-            MetaconfigSettings.logger.debug {
-                "${this::class.simpleName}: retrieved value from lambda"
-            }
-        }
-    }
+    override fun doGet(): ValueType = supplier()
 
-    override fun toString(): String = "${this::class.simpleName}: retrieving from lambda"
+    override fun toString(): String = "${this::class.simpleName} $context"
 }

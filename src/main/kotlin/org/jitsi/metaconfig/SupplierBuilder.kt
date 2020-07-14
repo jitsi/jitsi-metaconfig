@@ -26,8 +26,9 @@ class SupplierBuilder<T : Any>(val finalType: KType) {
      * [LambdaSupplier]s don't require construction as they are entirely responsible for producing
      * the value, so they have their own method
      */
-    fun retrieve(lambda: () -> T) {
-        suppliers += LambdaSupplier(lambda)
+    fun retrieve(lambda: () -> T) = retrieve("", lambda)
+    fun retrieve(context: String, lambda: () -> T) {
+        suppliers += LambdaSupplier(context, lambda)
     }
 
     /**
