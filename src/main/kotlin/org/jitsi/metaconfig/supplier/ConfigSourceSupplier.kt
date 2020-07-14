@@ -5,18 +5,13 @@ import org.jitsi.metaconfig.Deprecation
 import kotlin.reflect.KType
 
 /**
- * Retrieve the given [key] from [source] as [type]
- * ([type] and [ValueType] must 'match')
- *
- *
- * NOTE that this class (and its subclasses) exist primarily to provide extra context
- * and debugging information (otherwise lambda could just be used).
+ * Retrieve the given [key] from [source] as [type], where [type] and [ValueType] must 'match'
  */
 class ConfigSourceSupplier<ValueType : Any>(
     private val key: String,
     private val source: ConfigSource,
     private val type: KType,
-    deprecation: Deprecation = Deprecation.NotDeprecated
+    deprecation: Deprecation
 ) : ConfigValueSupplier<ValueType>(deprecation) {
 
     @Suppress("UNCHECKED_CAST")
