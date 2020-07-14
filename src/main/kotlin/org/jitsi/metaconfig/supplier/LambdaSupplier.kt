@@ -13,5 +13,5 @@ class LambdaSupplier<ValueType : Any>(
 
     override fun doGet(): ValueType = supplier()
 
-    override fun toString(): String = "${this::class.simpleName} $context"
+    override fun toString(): String = "${this::class.simpleName}${if (context.isNotBlank()) " $context" else ""}"
 }
