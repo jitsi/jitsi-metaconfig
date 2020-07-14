@@ -11,7 +11,9 @@ import org.jitsi.metaconfig.ConfigSource
 import kotlin.reflect.typeOf
 
 class ConfigSourceSupplierTest : ShouldSpec({
-    val configSource: ConfigSource = mockk()
+    val configSource = mockk<ConfigSource>().apply {
+        every { name } returns "config"
+    }
 
     context("a ConfigSourceSupplier") {
         val css = ConfigSourceSupplier<Int>(

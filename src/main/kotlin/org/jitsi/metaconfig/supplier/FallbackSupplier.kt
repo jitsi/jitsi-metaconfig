@@ -1,7 +1,6 @@
 package org.jitsi.metaconfig.supplier
 
 import org.jitsi.metaconfig.ConfigException
-import org.jitsi.metaconfig.MetaconfigSettings
 
 /**
  * A [ConfigValueSupplier] which searches through multiple [ConfigValueSupplier]s, in order,
@@ -9,22 +8,15 @@ import org.jitsi.metaconfig.MetaconfigSettings
  */
 class FallbackSupplier<ValueType : Any>(
     private val suppliers: List<ConfigValueSupplier<ValueType>>
-) : ConfigValueSupplier<ValueType> {
+) : ConfigValueSupplier<ValueType>() {
 
-    override fun get(): ValueType {
+    override fun doGet(): ValueType {
         val exceptions = mutableListOf<ConfigException.UnableToRetrieve>()
         for (supplier in suppliers) {
             try {
-                return supplier.get().also {
-                    MetaconfigSettings.logger.debug {
-                        "${this::class.simpleName}: value found from supplier $supplier"
-                    }
-                }
+                return supplier.get()
             } catch (e: ConfigException.UnableToRetrieve) {
                 exceptions += e
-                MetaconfigSettings.logger.debug {
-                    "${this::class.simpleName}: unable to retrieve value from supplier $supplier: $e"
-                }
             }
         }
         throw ConfigException.UnableToRetrieve.NotFound(
@@ -32,6 +24,6 @@ class FallbackSupplier<ValueType : Any>(
         )
     }
 
-    override fun toString(): String = "${this::class.simpleName}: checking suppliers:\n" +
-        suppliers.joinToString(separator = "\n")
+    override fun toString(): String = "${this::class.simpleName}: checking suppliers:" +
+        suppliers.joinToString(prefix = "\n  ", separator = "\n  ")
 }
