@@ -21,8 +21,8 @@ import kotlin.reflect.typeOf
  * order: (key, source, type [,valueTransformation|typeTransformation]).  And only one transformation
  * (value or type) is allowed.  All of this could be changed by adding the more methods to the different states.
  */
-sealed class SupplierBuilderState {
-    sealed class Complete<T : Any> : SupplierBuilderState() {
+sealed class ConfigPropertyState {
+    sealed class Complete<T : Any> : ConfigPropertyState() {
         /**
          * Build a [ConfigValueSupplier].  Required for any subclass of [Complete].
          */
@@ -100,7 +100,7 @@ sealed class SupplierBuilderState {
         }
     }
 
-    sealed class Incomplete : SupplierBuilderState() {
+    sealed class Incomplete : ConfigPropertyState() {
         /**
          * The initial empty state
          */
@@ -143,7 +143,7 @@ sealed class SupplierBuilderState {
 class SupplierBuilder<T : Any>(val finalType: KType) {
     val suppliers = mutableListOf<ConfigValueSupplier<T>>()
 
-    fun retrieve(sbs: SupplierBuilderState.Complete<T>) {
+    fun retrieve(sbs: ConfigPropertyState.Complete<T>) {
         suppliers += sbs.build()
     }
 
@@ -160,15 +160,15 @@ class SupplierBuilder<T : Any>(val finalType: KType) {
      * as a different type, they can call 'asType' on their own and override the inferred type.
      */
     fun String.from(configSource: ConfigSource) =
-        SupplierBuilderState.Incomplete.Empty.lookup(this).from(configSource).asType<T>(finalType)
+        ConfigPropertyState.Incomplete.Empty.lookup(this).from(configSource).asType<T>(finalType)
 }
 
 /**
- * A standalone 'lookup' function which can be called to 'kick off' the construction of a [SupplierBuilderState]
+ * A standalone 'lookup' function which can be called to 'kick off' the construction of a [ConfigPropertyState]
  *
  * This allows doing:
  *   val port: Int by config("app.server.port".from(configSource))
  * instead of
  *   val port: Int by config(lookup("app.server.port").from(configSource))
  */
-fun String.from(configSource: ConfigSource) = SupplierBuilderState.Incomplete.Empty.lookup(this).from(configSource)
+fun String.from(configSource: ConfigSource) = ConfigPropertyState.Incomplete.Empty.lookup(this).from(configSource)
