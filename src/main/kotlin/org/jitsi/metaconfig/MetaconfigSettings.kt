@@ -2,11 +2,12 @@ package org.jitsi.metaconfig
 
 class MetaconfigSettings {
     companion object {
+        val DefaultLogger = NoOpLogger
         /**
          * A logger for metaconfig to use, if desired.  Defaults
          * to a no-op implementation
          */
-        var logger: MetaconfigLogger = NoOpLogger
+        var logger: MetaconfigLogger = DefaultLogger
     }
 }
 
@@ -23,7 +24,7 @@ val NoOpLogger = object : MetaconfigLogger {
 }
 
 val StdOutLogger = object : MetaconfigLogger {
-    override fun error(block: () -> String) { println(block()) }
-    override fun warn(block: () -> String) { println(block()) }
-    override fun debug(block: () -> String) { println(block()) }
+    override fun error(block: () -> String) { println("ERROR: ${block()}") }
+    override fun warn(block: () -> String) { println("WARN: ${block()}") }
+    override fun debug(block: () -> String) { println("DEBUG: ${block()}") }
 }
