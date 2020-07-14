@@ -18,7 +18,7 @@ jobs:
         with:
           java-version: 1.8
       - name: Generate converage report
-        run: mvn jacoco:report
+        run: mvn clean test jacoco:report
       - name: Publish Coverage
         if: success()
         run: bash <(curl -s https://codecov.io/bash)
