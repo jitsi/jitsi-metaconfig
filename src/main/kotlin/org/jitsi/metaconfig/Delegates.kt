@@ -53,6 +53,20 @@ inline fun <reified T : Any> config(block: SupplierBuilder<T>.() -> Unit): Confi
 }
 
 /**
+ * Create a [ConfigValueSupplier] which can be used for a non-member field, e.g.:
+ *
+ * fun main(args: Array<String>) {
+ *     val port: ConfigValueSupplier<Int> = configSupplier {
+ *         retrieve("app.port".from(configSource))
+ *     }
+ * }
+ */
+inline fun <reified T : Any> configSupplier(block: SupplierBuilder<T>.() -> Unit): ConfigValueSupplier<T> {
+    val supplier = SupplierBuilder<T>(typeOf<T>()).apply(block)
+    return FallbackSupplier(supplier.suppliers)
+}
+
+/**
  * Create an [OptionalConfigDelegate] for a single property (no fallback) from only a key and source (filling in
  * the type automatically), returns null if the property couldn't be retrieved
  */
