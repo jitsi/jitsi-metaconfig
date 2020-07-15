@@ -80,6 +80,5 @@ class TypesafeConfigSource(override val name: String, private val config: Config
 
 
 #### TODO:
-- [ ] Allow marking a property in a specific source as 'deprecated' and warn if a value is used from there
-- [ ] Add MetaconfigSetttings option for deprecated property behavior (log a warning, log an error, throw an exception)
 - [ ] Allow 'conditional' properties: properties which throw unless a predicate is met (useful if some properties should only be accessed based on being 'enabled' by another property, for example)
+- [ ] Add helpers to make use from Java easier
