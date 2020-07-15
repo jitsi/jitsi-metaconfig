@@ -8,6 +8,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.jitsi.metaconfig.ConfigException
 import org.jitsi.metaconfig.ConfigSource
+import org.jitsi.metaconfig.noDeprecation
 import kotlin.reflect.typeOf
 
 class ConfigSourceSupplierTest : ShouldSpec({
@@ -19,7 +20,8 @@ class ConfigSourceSupplierTest : ShouldSpec({
         val css = ConfigSourceSupplier<Int>(
             "some.key",
             configSource,
-            typeOf<Int>()
+            typeOf<Int>(),
+            noDeprecation()
         )
         should("query the source every time when accessed") {
             every { configSource.getterFor(typeOf<Int>()) } returns { 42 }
