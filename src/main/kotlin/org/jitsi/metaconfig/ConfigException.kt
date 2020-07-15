@@ -15,6 +15,8 @@ sealed class ConfigException(msg: String) : Exception(msg) {
          * was requested
          */
         class WrongType(msg: String) : UnableToRetrieve(msg)
+
+        class Deprecated(msg: String) : UnableToRetrieve(msg)
     }
 
     /**

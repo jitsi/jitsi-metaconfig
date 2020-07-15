@@ -24,6 +24,9 @@ sealed class ConfigPropertyState {
          * Build a [ConfigValueSupplier].  Required for any subclass of [Complete].
          */
         abstract fun build(): ConfigValueSupplier<T>
+        fun softDeprecated(msg: String) = withDeprecation(softDeprecation(msg))
+        fun hardDeprecated(msg: String) = withDeprecation(hardDeprecation(msg))
+        protected abstract fun withDeprecation(deprecation: Deprecation): Complete<T>
 
         /**
          * A simple lookup of a property value from the given source as the given type
@@ -31,20 +34,21 @@ sealed class ConfigPropertyState {
         class NoTransformation<T : Any>(
             val key: String,
             val source: ConfigSource,
-            val type: KType
+            val type: KType,
+            val deprecation: Deprecation
         ) : Complete<T>() {
             /**
              * Add a value transformation operation
              */
             fun andTransformBy(transformer: (T) -> T): ValueTransformation<T> {
-                return ValueTransformation(key, source, type, transformer)
+                return ValueTransformation(key, source, type, transformer, deprecation)
             }
 
             /**
              * Add a type conversion operation
              */
             fun <NewType : Any> andConvertBy(converter: (T) -> NewType): TypeConversion<T, NewType> {
-                return TypeConversion(key, source, type, converter)
+                return TypeConversion(key, source, type, converter, deprecation)
             }
 
             /**
@@ -62,12 +66,15 @@ sealed class ConfigPropertyState {
              * }
              */
             inline fun <reified R : Any> asType(): NoTransformation<R> {
-                return NoTransformation(key, source, typeOf<R>())
+                return NoTransformation(key, source, typeOf<R>(), noDeprecation())
             }
 
             override fun build(): ConfigValueSupplier<T> {
-                return ConfigSourceSupplier(key, source, type)
+                return ConfigSourceSupplier(key, source, type, deprecation)
             }
+
+            override fun withDeprecation(deprecation: Deprecation) =
+                NoTransformation<T>(key, source, type, deprecation)
         }
 
         /**
@@ -77,12 +84,16 @@ sealed class ConfigPropertyState {
             val key: String,
             val source: ConfigSource,
             val type: KType,
-            val transformer: (T) -> T
+            val transformer: (T) -> T,
+            val deprecation: Deprecation
         ) : Complete<T>() {
             override fun build(): ConfigValueSupplier<T> {
-                val sourceSupplier = ConfigSourceSupplier<T>(key, source, type)
+                val sourceSupplier = ConfigSourceSupplier<T>(key, source, type, deprecation)
                 return ValueTransformingSupplier(sourceSupplier, transformer)
             }
+
+            override fun withDeprecation(deprecation: Deprecation) =
+                ValueTransformation(key, source, type, transformer, deprecation)
         }
 
         /**
@@ -92,12 +103,16 @@ sealed class ConfigPropertyState {
             val key: String,
             val source: ConfigSource,
             val originalType: KType,
-            val converter: (OriginalType) -> NewType
+            val converter: (OriginalType) -> NewType,
+            val deprecation: Deprecation
         ) : Complete<NewType>() {
             override fun build(): ConfigValueSupplier<NewType> {
-                val sourceSupplier = ConfigSourceSupplier<OriginalType>(key, source, originalType)
+                val sourceSupplier = ConfigSourceSupplier<OriginalType>(key, source, originalType, deprecation)
                 return TypeConvertingSupplier(sourceSupplier, converter)
             }
+
+            override fun withDeprecation(deprecation: Deprecation) =
+                TypeConversion(key, source, originalType, converter, deprecation)
         }
     }
 
@@ -114,20 +129,27 @@ sealed class ConfigPropertyState {
          */
         class KeyOnly(val key: String) : Incomplete() {
             fun from(configSource: ConfigSource): KeyAndSource {
-                return KeyAndSource(key, configSource)
+                return KeyAndSource(key, configSource, noDeprecation())
             }
         }
 
         /**
          * The config key and source are present
          */
-        class KeyAndSource(val key: String, val source: ConfigSource) : Incomplete() {
+        class KeyAndSource(val key: String, val source: ConfigSource, val deprecation: Deprecation) : Incomplete() {
             inline fun <reified T : Any> asType(): Complete.NoTransformation<T> {
-                return Complete.NoTransformation(key, source, typeOf<T>())
+                return Complete.NoTransformation(key, source, typeOf<T>(), deprecation)
             }
             fun <T : Any> asType(type: KType): Complete.NoTransformation<T> {
-                return Complete.NoTransformation(key, source, type)
+                return Complete.NoTransformation(key, source, type, deprecation)
             }
+
+            // These don't make sense until we have at least a key and a source, so put them in
+            // KeyAndSource instead of defining at Incomplete (or at ConfigPropertyState)
+            fun softDeprecated(msg: String) = withDeprecation(softDeprecation(msg))
+            fun hardDeprecated(msg: String) = withDeprecation(hardDeprecation(msg))
+            protected fun withDeprecation(deprecation: Deprecation) =
+                KeyAndSource(key, source, deprecation)
         }
     }
 }

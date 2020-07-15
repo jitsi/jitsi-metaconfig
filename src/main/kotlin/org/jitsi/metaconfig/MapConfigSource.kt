@@ -19,6 +19,7 @@ class MapConfigSource(
         return when (type) {
             typeOf<Boolean>() -> getCatching<Boolean>()
             typeOf<Long>() -> getCatching<Long>()
+            typeOf<Int>() -> getCatching<Int>()
             else -> throw ConfigException.UnsupportedType("Type $type not supported by this source")
         }
     }

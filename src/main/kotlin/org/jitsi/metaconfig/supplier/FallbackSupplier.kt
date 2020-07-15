@@ -1,14 +1,19 @@
 package org.jitsi.metaconfig.supplier
 
 import org.jitsi.metaconfig.ConfigException
+import org.jitsi.metaconfig.Deprecation
+import org.jitsi.metaconfig.noDeprecation
 
 /**
  * A [ConfigValueSupplier] which searches through multiple [ConfigValueSupplier]s, in order,
  * to find a value.
+ *
+ * Note that a [FallbackSupplier] is never deprecated, only the suppliers it checks can be,
+ * so we also pass [noDeprecation] to [ConfigValueSupplier].
  */
 class FallbackSupplier<ValueType : Any>(
     private val suppliers: List<ConfigValueSupplier<ValueType>>
-) : ConfigValueSupplier<ValueType>() {
+) : ConfigValueSupplier<ValueType>(noDeprecation()) {
 
     override fun doGet(): ValueType {
         val exceptions = mutableListOf<ConfigException.UnableToRetrieve>()
