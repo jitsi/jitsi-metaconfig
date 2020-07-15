@@ -11,15 +11,17 @@ import org.jitsi.metaconfig.MetaconfigSettings
 abstract class ConfigValueSupplier<ValueType : Any>(
     private val deprecation: Deprecation
 ) {
+    private var deprecationWarningLogged = false
     fun get(): ValueType {
         return doGet().also {
             MetaconfigSettings.logger.debug {
                 "${this::class.simpleName}: value found via $this"
             }
-            if (deprecation is Deprecation.Deprecated.Soft) {
+            if (deprecation is Deprecation.Deprecated.Soft && !deprecationWarningLogged) {
                 MetaconfigSettings.logger.warn {
                     "A value was retrieved via $this which is deprecated: ${deprecation.msg}"
                 }
+                deprecationWarningLogged = true
             } else if (deprecation is Deprecation.Deprecated.Hard) {
                 throw ConfigException.UnableToRetrieve.Deprecated(
                     "A value was retrieved via $this which is deprecated: ${deprecation.msg}"

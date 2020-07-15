@@ -1,7 +1,6 @@
 package org.jitsi.metaconfig.supplier
 
 import org.jitsi.metaconfig.ConfigException
-import org.jitsi.metaconfig.Deprecation
 import org.jitsi.metaconfig.noDeprecation
 
 /**
