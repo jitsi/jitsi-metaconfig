@@ -67,9 +67,31 @@ val port: Int by config {
     retrieve("Foo::port") { foo.port }
 }
 ```
-This will first try to retrieve an `Int` at `path.to.port` from `myConfig` and, if it can't be found, will grab the `port` member of `foo`.
+This will first try to retrieve an `Int` at `path.to.port` from `myConfig` and, if it can't be found, will grab the `port` member of `foo`.  This could also be used to set a default value:
+
+```kotlin
+val port: Int by config {
+    retrieve("path.to.port".from(myConfig))
+    // Since the lambda is opaque, the description gives some context
+    retrieve("default") { 8080 }
+}
+```
 
 ---
+### Optional properties
+Properties which are optional (meaning they should have a value of `null` if not found anywhere), can be done like so:
+```kotlin
+val myProperty: Int? by optionalconfig("path.to.property".from(myConfigSource))
+```
+Or
+```kotlin
+val myProperty: Int? by optionalconfig {
+    retrieve("path.to.property".from(myConfigSource))
+    retrieve("new.path.to.property".from(myConfigSource))
+}
+```
+
+
 ### Deprecation of properties
 Say you have the following json config:
 
