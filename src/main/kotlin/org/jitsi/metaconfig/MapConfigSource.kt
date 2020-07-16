@@ -1,5 +1,6 @@
 package org.jitsi.metaconfig
 
+import java.time.Duration
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
@@ -21,6 +22,7 @@ class MapConfigSource(
             typeOf<Long>() -> getCatching<Long>()
             typeOf<Int>() -> getCatching<Int>()
             typeOf<String>() -> getCatching<String>()
+            typeOf<Duration>() -> getCatching<Duration>()
             else -> throw ConfigException.UnsupportedType("Type $type not supported by this source")
         }
     }
@@ -29,7 +31,10 @@ class MapConfigSource(
     private inline fun <reified T : Any> getCatching(): (String) -> T {
         return { key ->
             val value = configValues[key] ?: throw ConfigException.UnableToRetrieve.NotFound("not found")
-            value as? T ?: throw ConfigException.UnableToRetrieve.WrongType("wrong type")
+            value as? T ?: throw ConfigException.UnableToRetrieve.WrongType(
+                "Wrong type: expected type " +
+                    "${typeOf<T>().classifier}, got type ${value::class}"
+            )
         }
     }
 }
