@@ -49,6 +49,7 @@ Read more:
 - [Implementing a ConfigSource](docs/ConfigSource.md)
 - [Using property deleagtes to define properties in code](docs/DelegateHelpers.md)
 - [SupplierTypes](docs/SupplierTypes.md)
+- [Debugging](docs/Debugging.md)
 
 #### TODO:
 - [ ] Allow 'conditional' properties: properties which throw unless a predicate is met (useful if some properties should only be accessed based on being 'enabled' by another property, for example)
