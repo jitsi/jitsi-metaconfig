@@ -1,5 +1,5 @@
 ﻿# Delegate helpers
-The [ConfigValueSupplier](SupplierTypes.md) are the underlying code which does the work, but aren't very nice to use when defining properties.  Instead, there are helpers you can use to create property delegates for configuration property members.  [The examples in the README](../README.md#example-config-properties) show these in use.  We'll go over the helper methods here:
+The [ConfigValueSupplier](SupplierTypes.md)s are the underlying code which does the work, but aren't very nice to use when defining properties.  Instead, there are helpers you can use to create property delegates for configuration property members.  [The examples in the README](../README.md#example-config-properties) show these in use.  We'll go over the helper methods here:
 
 ### Simple
 To define a simple property which pulls only from a single source, use:
