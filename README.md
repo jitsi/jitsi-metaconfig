@@ -20,12 +20,12 @@ class Foo {
     // Optional property
     val optionalParam: String? by optionalconfig("app.client.optional-param".from(myConfigSource))
 
-    // Convert the type
+    // Convert the type (retrieve as a Long, convert to a Duration)
     val interval: Duration by config {
         retrieve("app.interval-ms".from(myConfigSource).asType<Long>().andConvertBy(Duration::ofMillis))
     }
 
-    // Transform the value
+    // Transform the value (invert the retrieved boolean value)
     val enabled: Boolean by config {
         retrieve("app.disabled".from(myConfigSource).andTransformBy { !it })
     }
@@ -44,8 +44,8 @@ class Foo {
 }
 ```
 
-[ConfigSource](docs/ConfigSource.md)
-[SupplierTypes](docs/SupplierTypes.md)
+- [ConfigSource](docs/ConfigSource.md)
+- [SupplierTypes](docs/SupplierTypes.md)
 
 #### TODO:
 - [ ] Allow 'conditional' properties: properties which throw unless a predicate is met (useful if some properties should only be accessed based on being 'enabled' by another property, for example)
