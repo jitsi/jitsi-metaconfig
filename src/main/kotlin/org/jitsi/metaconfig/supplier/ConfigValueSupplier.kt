@@ -13,10 +13,10 @@ abstract class ConfigValueSupplier<ValueType : Any>(
 ) {
     private var deprecationWarningLogged = false
     fun get(): ValueType {
+        MetaconfigSettings.logger.debug {
+            "${this::class.simpleName}: checking for value via $this"
+        }
         return doGet().also {
-            MetaconfigSettings.logger.debug {
-                "${this::class.simpleName}: value found via $this"
-            }
             if (deprecation is Deprecation.Deprecated.Soft && !deprecationWarningLogged) {
                 MetaconfigSettings.logger.warn {
                     "A value was retrieved via $this which is deprecated: ${deprecation.msg}"
@@ -30,7 +30,7 @@ abstract class ConfigValueSupplier<ValueType : Any>(
         }
     }
     /**
-     * Get the value from this supplier.  Throws [ConfigException]
+     * Get the value from this supplier.  Throws [ConfigException.UnableToRetrieve]
      * if the property wasn't found.
      */
     protected abstract fun doGet(): ValueType

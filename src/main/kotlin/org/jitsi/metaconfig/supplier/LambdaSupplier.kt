@@ -1,6 +1,7 @@
 package org.jitsi.metaconfig.supplier
 
 import org.jitsi.metaconfig.Deprecation
+import org.jitsi.metaconfig.MetaconfigSettings
 
 class LambdaSupplier<ValueType : Any>(
     private val context: String,
@@ -11,7 +12,13 @@ class LambdaSupplier<ValueType : Any>(
     constructor(deprecation: Deprecation, supplier: () -> ValueType) : this("", deprecation, supplier)
     constructor(context: String, supplier: () -> ValueType) : this(context, Deprecation.NotDeprecated, supplier)
 
-    override fun doGet(): ValueType = supplier()
+    override fun doGet(): ValueType {
+        return supplier().also {
+            MetaconfigSettings.logger.debug {
+                "${this}: found value"
+            }
+        }
+    }
 
     override fun toString(): String = "${this::class.simpleName}${if (context.isNotBlank()) " $context" else ""}"
 }

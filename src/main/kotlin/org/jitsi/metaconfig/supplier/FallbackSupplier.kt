@@ -1,6 +1,7 @@
 package org.jitsi.metaconfig.supplier
 
 import org.jitsi.metaconfig.ConfigException
+import org.jitsi.metaconfig.MetaconfigSettings
 import org.jitsi.metaconfig.noDeprecation
 
 /**
@@ -18,7 +19,11 @@ class FallbackSupplier<ValueType : Any>(
         val exceptions = mutableListOf<ConfigException.UnableToRetrieve>()
         for (supplier in suppliers) {
             try {
-                return supplier.get()
+                return supplier.get().also {
+                    MetaconfigSettings.logger.debug {
+                        "${this::class.simpleName}: value found via $supplier"
+                    }
+                }
             } catch (e: ConfigException.UnableToRetrieve) {
                 exceptions += e
             }

@@ -2,6 +2,7 @@ package org.jitsi.metaconfig.supplier
 
 import org.jitsi.metaconfig.ConfigSource
 import org.jitsi.metaconfig.Deprecation
+import org.jitsi.metaconfig.MetaconfigSettings
 import kotlin.reflect.KType
 
 /**
@@ -15,7 +16,13 @@ class ConfigSourceSupplier<ValueType : Any>(
 ) : ConfigValueSupplier<ValueType>(deprecation) {
 
     @Suppress("UNCHECKED_CAST")
-    override fun doGet(): ValueType = (source.getterFor(type)(key) as ValueType)
+    override fun doGet(): ValueType {
+        return (source.getterFor(type)(key) as ValueType).also {
+            MetaconfigSettings.logger.debug {
+                "${this}: found value"
+            }
+        }
+    }
 
     override fun toString(): String = "${this::class.simpleName}: key: '$key', type: '$type', source: '${source.name}'"
 }

@@ -1,5 +1,6 @@
 package org.jitsi.metaconfig.supplier
 
+import org.jitsi.metaconfig.MetaconfigSettings
 import org.jitsi.metaconfig.noDeprecation
 
 /**
@@ -14,7 +15,13 @@ class TypeConvertingSupplier<OriginalType : Any, NewType : Any>(
     private val converter: (OriginalType) -> NewType
 ) : ConfigValueSupplier<NewType>(noDeprecation()) {
 
-    override fun doGet(): NewType = converter(originalSupplier.get())
+    override fun doGet(): NewType {
+        return converter(originalSupplier.get()).also {
+            MetaconfigSettings.logger.debug {
+                "${this}: found value"
+            }
+        }
+    }
 
     override fun toString(): String = "${this::class.simpleName}: converting value from $originalSupplier"
 }
