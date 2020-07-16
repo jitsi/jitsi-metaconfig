@@ -46,6 +46,7 @@ class Foo {
 
 - [ConfigSource](docs/ConfigSource.md)
 - [SupplierTypes](docs/SupplierTypes.md)
+- [Property Deleagtes](docs/DelegateHelpers.md)
 
 #### TODO:
 - [ ] Allow 'conditional' properties: properties which throw unless a predicate is met (useful if some properties should only be accessed based on being 'enabled' by another property, for example)
