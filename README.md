@@ -46,8 +46,8 @@ class Foo {
 
 Read more:
 
-- [ConfigSource](docs/ConfigSource.md)
-- [Property Deleagtes](docs/DelegateHelpers.md)
+- [Implementing a ConfigSource](docs/ConfigSource.md)
+- [Using property deleagtes to define properties in code](docs/DelegateHelpers.md)
 - [SupplierTypes](docs/SupplierTypes.md)
 
 #### TODO:
