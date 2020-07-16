@@ -44,47 +44,8 @@ class Foo {
 }
 ```
 
-### ConfigSource
-jitsi-metaconfig defines a `ConfigSource` interface which represents some source of configuration properties.  A `ConfigSource` must implement a `name` (used for logging) and a single method:
-```kotlin
-fun getterFor(type: KType): (String) -> Any
-```
-`getterFor` takes in a `KType` and returns a lambda which takes a `String` and returns an `Any` instance.  This lambda is responsible for taking in a key path and returning the value of the configuration property at that key path (or throws an exception if one can't be found).  Any type supported by the underlying configuration library should be supported here.
-
-The interface allows you to plug in the configuration library (or libraries) you're using to jitsi-metaconfig.  Here's an (abridged) example `ConfigSource` for to integrate the `Config` object from the [Typesafe config](https://github.com/lightbend/config) library:
-
-```kotlin
-import com.typesafe.config.Config
-import org.jitsi.metaconfig.ConfigSource
-import java.time.Duration
-import kotlin.reflect.KClass
-import kotlin.reflect.KType
-import kotlin.reflect.full.isSubtypeOf
-import kotlin.reflect.typeOf
-
-class TypesafeConfigSource(override val name: String, private val config: Config) : ConfigSource {
-  override fun getterFor(type: KType): (String) -> Any {
-        if (type.isSubtypeOf(typeOf<Enum<*>>())) {
-            return getterForEnum(type.classifier as KClass<Nothing>)
-        }
-        return when (type) {
-            typeOf<Boolean>() -> { key -> config.getBoolean(key) }
-            typeOf<Int>() -> { key -> config.getInt(key) }
-            typeOf<String>() -> { key -> config.getString(key) }
-            typeOf<List<String>>() -> { key -> config.getStringList(key) }
-            typeOf<List<Int>>() -> { key -> config.getIntList(key) }
-            // ...etc
-            else -> TODO("no support for type $type")
-        }
-    }
-
-    private fun<T : Enum<T>> getterForEnum(clazz: KClass<T>): (String) -> T {
-        return { key -> config.getEnum(clazz.java, key) }
-  }
-}
-```
-
-
+[ConfigSource](docs/ConfigSource.md)
+[SupplierTypes](docs/SupplierTypes.md)
 
 #### TODO:
 - [ ] Allow 'conditional' properties: properties which throw unless a predicate is met (useful if some properties should only be accessed based on being 'enabled' by another property, for example)
