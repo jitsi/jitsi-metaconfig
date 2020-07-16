@@ -11,7 +11,7 @@ jitsi-metaconfig is _not_ a config library.  jitsi-metaconfig helps solve the pr
 jitsi-metaconfig allows defining properties in code in such a way that names, locations and types can all be changed while still supporting the old format so deployments which use old keys/types/files won't break.  It also
 supports marking old properties as deprecated to ease the transition to removing support for them.
 
-Example config properties:
+### Example config properties:
 ```kotlin
 class Foo {
     // Simple property
