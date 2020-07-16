@@ -2,29 +2,30 @@
 
 # jitsi-metaconfig
 
-jitsi-metaconfig is _not_ a config library.  jitsi-metaconfig helps solve the problems around dealing with configuration properties, such as:
+jitsi-metaconfig is _not_ a config library.  jitsi-metaconfig helps solve the problems around the evolution of configuration properties, such as:
 
-1) Property keys changing
+1) Property names changing
 1) Changing property file locations or formats
-1) The value type of a property key changing
+1) The value type of a property key changing (e.g. it was a number of milliseconds but is now a Duration)
 
-jitsi-metaconfig allows defining properties in code in such a way that names, locations and types can all be changed while still supporting the old format so deployments which use old keys/types/files won't break.
+jitsi-metaconfig allows defining properties in code in such a way that names, locations and types can all be changed while still supporting the old format so deployments which use old keys/types/files won't break.  It also
+supports marking old properties as deprecated to ease the transition to removing support for them.
 
 Example config properties:
 ```kotlin
 class Foo {
     // Simple property
-    val enabled: Boolean by config("app.enabled").from(myConfigSource))
+    val enabled: Boolean by config("app.enabled".from(myConfigSource))
 
     // Optional property
-    val optional: Boolean? by optionalconfig("
+    val optionalParam: String? by optionalconfig("app.client.optional-param".from(myConfigSource))
 
-    // Convert the type
+    // Convert the type (retrieve as a Long, convert to a Duration)
     val interval: Duration by config {
-        retrieve("app.interval".from(myConfigSource).asType<Long>().andConvertBy(Duration::ofMillis))
+        retrieve("app.interval-ms".from(myConfigSource).asType<Long>().andConvertBy(Duration::ofMillis))
     }
 
-    // Transform the value
+    // Transform the value (invert the retrieved boolean value)
     val enabled: Boolean by config {
         retrieve("app.disabled".from(myConfigSource).andTransformBy { !it })
     }
@@ -34,51 +35,17 @@ class Foo {
         retrieve("old.path.app.enabled".from(legacyConfigSource))
         retrieve("new.path.app.enabled".from(newConfigSource))
     }
-}
-```
 
-### ConfigSource
-jitsi-metaconfig defines a `ConfigSource` interface which represents some source of configuration properties.  A `ConfigSource` must implement a `name` (used for logging) and a single method:
-```kotlin
-fun getterFor(type: KType): (String) -> Any
-```
-`getterFor` takes in a `KType` and returns a lambda which takes a `String` and returns an `Any` instance.  This lambda is responsible for taking in a key path and returning the value of the configuration property at that key path (or throws an exception if one can't be found).  Any type supported by the underlying configuration library should be supported here.
-
-The interface allows you to plug in the configuration library (or libraries) you're using to jitsi-metaconfig.  Here's an (abridged) example `ConfigSource` for to integrate the `Config` object from the [Typesafe config](https://github.com/lightbend/config) library:
-
-```kotlin
-import com.typesafe.config.Config
-import org.jitsi.metaconfig.ConfigSource
-import java.time.Duration
-import kotlin.reflect.KClass
-import kotlin.reflect.KType
-import kotlin.reflect.full.isSubtypeOf
-import kotlin.reflect.typeOf
-
-class TypesafeConfigSource(override val name: String, private val config: Config) : ConfigSource {
-  override fun getterFor(type: KType): (String) -> Any {
-        if (type.isSubtypeOf(typeOf<Enum<*>>())) {
-            return getterForEnum(type.classifier as KClass<Nothing>)
-        }
-        return when (type) {
-            typeOf<Boolean>() -> { key -> config.getBoolean(key) }
-            typeOf<Int>() -> { key -> config.getInt(key) }
-            typeOf<String>() -> { key -> config.getString(key) }
-            typeOf<List<String>>() -> { key -> config.getStringList(key) }
-            typeOf<List<Int>>() -> { key -> config.getIntList(key) }
-            // ...etc
-            else -> TODO("no support for type $type")
-        }
+    // Search for value in a legacy config file and then the new one, mark the old one as deprecated
+    val enabled: Boolean by config {
+        retrieve("old.path.app.enabled".from(legacyConfigSource).softDeprecated("use 'new.path.app.enabled' in new config source")
+        retrieve("new.path.app.enabled".from(newConfigSource))
     }
-
-    private fun<T : Enum<T>> getterForEnum(clazz: KClass<T>): (String) -> T {
-        return { key -> config.getEnum(clazz.java, key) }
-  }
 }
 ```
 
-
+- [ConfigSource](docs/ConfigSource.md)
+- [SupplierTypes](docs/SupplierTypes.md)
 
 #### TODO:
 - [ ] Allow 'conditional' properties: properties which throw unless a predicate is met (useful if some properties should only be accessed based on being 'enabled' by another property, for example)
-- [ ] Add helpers to make use from Java easier
