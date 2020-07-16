@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.jitsi</groupId>
-    <artifactId>jitsi-meta-config</artifactId>
+    <artifactId>jitsi-metaconfig</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -31,6 +31,12 @@
             <version>${kotest.version}</version>
             <scope>test</scope>
         </dependency>
+        <!--dependency>
+            <groupId>io.kotest</groupId>
+            <artifactId>kotest-runner-console-jvm</artifactId>
+            <version>${kotest.version}</version>
+            <scope>test</scope>
+        </dependency-->
     </dependencies>
 
     <build>
