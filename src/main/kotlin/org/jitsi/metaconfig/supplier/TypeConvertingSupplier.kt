@@ -18,7 +18,7 @@ class TypeConvertingSupplier<OriginalType : Any, NewType : Any>(
     override fun doGet(): NewType {
         return converter(originalSupplier.get()).also {
             MetaconfigSettings.logger.debug {
-                "${this}: found value"
+                "${this::class.simpleName}: Converted value type from $originalSupplier"
             }
         }
     }

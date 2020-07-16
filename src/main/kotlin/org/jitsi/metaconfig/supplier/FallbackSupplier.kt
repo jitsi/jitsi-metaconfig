@@ -16,6 +16,10 @@ class FallbackSupplier<ValueType : Any>(
 ) : ConfigValueSupplier<ValueType>(noDeprecation()) {
 
     override fun doGet(): ValueType {
+        MetaconfigSettings.logger.debug {
+            "${this::class.simpleName}: checking for value via suppliers:" +
+                suppliers.joinToString(prefix = "\n  ", separator = "\n  ")
+        }
         val exceptions = mutableListOf<ConfigException.UnableToRetrieve>()
         for (supplier in suppliers) {
             try {
@@ -25,6 +29,9 @@ class FallbackSupplier<ValueType : Any>(
                     }
                 }
             } catch (e: ConfigException.UnableToRetrieve) {
+                MetaconfigSettings.logger.debug {
+                    "${this::class.simpleName}: failed to find value via $supplier: $e"
+                }
                 exceptions += e
             }
         }

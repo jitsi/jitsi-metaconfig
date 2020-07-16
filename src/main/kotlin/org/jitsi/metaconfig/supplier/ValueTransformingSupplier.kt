@@ -17,7 +17,7 @@ class ValueTransformingSupplier<ValueType : Any>(
     override fun doGet(): ValueType {
         return transformer(originalSupplier.get()).also {
             MetaconfigSettings.logger.debug {
-                "${this}: found value"
+                "${this::class.simpleName}: Transformed value from $originalSupplier"
             }
         }
     }

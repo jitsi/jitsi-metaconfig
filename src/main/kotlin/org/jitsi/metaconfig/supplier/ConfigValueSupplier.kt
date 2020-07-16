@@ -13,9 +13,6 @@ abstract class ConfigValueSupplier<ValueType : Any>(
 ) {
     private var deprecationWarningLogged = false
     fun get(): ValueType {
-        MetaconfigSettings.logger.debug {
-            "${this::class.simpleName}: checking for value via $this"
-        }
         return doGet().also {
             if (deprecation is Deprecation.Deprecated.Soft && !deprecationWarningLogged) {
                 MetaconfigSettings.logger.warn {

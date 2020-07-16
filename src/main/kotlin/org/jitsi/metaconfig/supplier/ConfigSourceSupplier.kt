@@ -17,9 +17,12 @@ class ConfigSourceSupplier<ValueType : Any>(
 
     @Suppress("UNCHECKED_CAST")
     override fun doGet(): ValueType {
+        MetaconfigSettings.logger.debug {
+            "${this::class.simpleName}: Trying to retrieve key '$key' from source '${source.name}' as type $type"
+        }
         return (source.getterFor(type)(key) as ValueType).also {
             MetaconfigSettings.logger.debug {
-                "${this}: found value"
+                "${this::class.simpleName}: Successfully retrieved key '$key' from source '${source.name}' as type $type"
             }
         }
     }

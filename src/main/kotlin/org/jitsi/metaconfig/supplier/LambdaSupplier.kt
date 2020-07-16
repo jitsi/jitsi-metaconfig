@@ -13,12 +13,15 @@ class LambdaSupplier<ValueType : Any>(
     constructor(context: String, supplier: () -> ValueType) : this(context, Deprecation.NotDeprecated, supplier)
 
     override fun doGet(): ValueType {
+        MetaconfigSettings.logger.debug {
+            "${this::class.simpleName}: Trying to retrieve value via $context"
+        }
         return supplier().also {
             MetaconfigSettings.logger.debug {
-                "${this}: found value"
+                "$this: found value"
             }
         }
     }
 
-    override fun toString(): String = "${this::class.simpleName}${if (context.isNotBlank()) " $context" else ""}"
+    override fun toString(): String = "${this::class.simpleName}${if (context.isNotBlank()) ": '$context'" else ""}"
 }
