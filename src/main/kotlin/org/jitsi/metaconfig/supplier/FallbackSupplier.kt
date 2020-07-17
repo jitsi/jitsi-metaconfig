@@ -28,6 +28,8 @@ class FallbackSupplier<ValueType : Any>(
                         "${this::class.simpleName}: value found via $supplier"
                     }
                 }
+            } catch (e: ConfigException.UnableToRetrieve.Deprecated) {
+                throw e
             } catch (e: ConfigException.UnableToRetrieve) {
                 MetaconfigSettings.logger.debug {
                     "${this::class.simpleName}: failed to find value via $supplier: $e"

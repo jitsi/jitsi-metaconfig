@@ -35,6 +35,16 @@ class ConfigPropertyStateTest : ShouldSpec({
                 obj.num
             }
         }
+        should("allow marking a property with a key, a source and a transformation as hard deprecated") {
+            val obj = object {
+                val num: Int by config {
+                    retrieve("legacy.num".from(legacyConfig).andTransformBy { it + 1 }.hardDeprecated("use new.num"))
+                }
+            }
+            shouldThrow<ConfigException.UnableToRetrieve.Deprecated> {
+                obj.num
+            }
+        }
         should("allow transforming the value of a property") {
             val obj = object {
                 val num: Int by config {

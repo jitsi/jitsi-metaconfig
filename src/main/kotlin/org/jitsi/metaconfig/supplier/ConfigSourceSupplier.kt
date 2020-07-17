@@ -39,5 +39,8 @@ class ConfigSourceSupplier<ValueType : Any>(
         }
     }
 
+    override fun withDeprecation(deprecation: Deprecation): ConfigValueSupplier<ValueType> =
+        ConfigSourceSupplier(key, source, type, deprecation)
+
     override fun toString(): String = "${this::class.simpleName}: key: '$key', type: '$type', source: '${source.name}'"
 }
