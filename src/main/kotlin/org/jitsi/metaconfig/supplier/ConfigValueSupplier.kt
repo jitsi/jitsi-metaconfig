@@ -12,8 +12,9 @@ abstract class ConfigValueSupplier<ValueType : Any>(
     private val deprecation: Deprecation
 ) {
     private var deprecationWarningLogged = false
-    fun get(): ValueType {
-        return doGet().also {
+
+    private val value: ValueType by lazy {
+        doGet().also {
             if (deprecation is Deprecation.Deprecated.Soft && !deprecationWarningLogged) {
                 MetaconfigSettings.logger.warn {
                     "A value was retrieved via $this which is deprecated: ${deprecation.msg}"
@@ -26,6 +27,9 @@ abstract class ConfigValueSupplier<ValueType : Any>(
             }
         }
     }
+
+    fun get(): ValueType = value
+
     /**
      * Get the value from this supplier.  Throws [ConfigException.UnableToRetrieve]
      * if the property wasn't found.
