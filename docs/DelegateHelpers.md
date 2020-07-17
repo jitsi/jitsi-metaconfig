@@ -22,7 +22,7 @@ This will first try to retrieve an `Int` at `legacy.path` from `legacyConfigSour
 To transform the retrieved value in some way (here, by inverting the retrieved boolean), use:
 ```kotlin
 val myProperty: Boolean by config {
-    retrieve("path.to.property".from(myConfigSource).asType<Boolean>().andTransformBy { !it })
+    retrieve("path.to.property".from(myConfigSource).andTransformBy { !it })
 }
 ```
 This is useful if the semantics of a property were changed, for example:
@@ -48,7 +48,7 @@ The property would be:
 val serverEnabled: Boolean by config {
     retrieve("app.server.enabled".from(oldConfig))
     // Invert the value to match if it's 'enabled'
-    retrieve("app.server.disabled".from(newConfig).asType<Boolean>().andTransformBy { !it })
+    retrieve("app.server.disabled".from(newConfig).andTransformBy { !it })
 }
 ```
 Converting the type of a value is also possible.  This is useful if you want the code to use a friendlier type than the config (say a `Duration` instead of a `Long` representing milliseconds):

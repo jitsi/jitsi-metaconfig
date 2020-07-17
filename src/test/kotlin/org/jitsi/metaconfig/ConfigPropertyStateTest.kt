@@ -37,8 +37,8 @@ class ConfigPropertyStateTest : ShouldSpec({
         }
         should("allow transforming the value of a property") {
             val obj = object {
-                val num: Int by config{
-                    retrieve("legacy.num".from(legacyConfig).asType<Int>().andTransformBy { it / 2 })
+                val num: Int by config {
+                    retrieve("legacy.num".from(legacyConfig).andTransformBy { it / 2 })
                 }
             }
             obj.num shouldBe 21
