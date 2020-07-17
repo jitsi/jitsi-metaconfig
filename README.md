@@ -41,6 +41,11 @@ class Foo {
         retrieve("old.path.app.enabled".from(legacyConfigSource).softDeprecated("use 'new.path.app.enabled' in new config source")
         retrieve("new.path.app.enabled".from(newConfigSource))
     }
+
+    // Only allow access to port if 'enabled' is true (throws an exception otherwise)
+    val port: Int by conditionalconfig(::enabled) {
+        retrieve("path.to.port".from(newConfigSource))
+    }
 }
 ```
 

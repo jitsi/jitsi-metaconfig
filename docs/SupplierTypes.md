@@ -74,3 +74,16 @@ val port: ConfigValueSupplier<Int> = FallbackSupplier(
 )
 ```
 
+## ConditionalSupplier
+A `ConditionalSupplier` is a effectively a wrapper around a `FallbackSupplier` with a predicate guard.  Only if the predicate passes will it try to retrieve from the inner supplier.
+
+This can be useful if a property should only be accessed based on some condition (like a feature being enabled).  The following example will throw [ConfigException.UnableToRetrieve.ConditionNotMet]
+when calling `port.get()` if `serverEnabled` is not true:
+```kotlin
+val port: ConfigValueSupplier<Int> = ConditionalSupplier(
+    { serverEnabled },
+    listOf(
+        ConfigSourceSupplier("legacy.path.port", legacyConfigSource, typeOf<Int>()),
+        LambdaSupplier { someLegacyConfigObject.port }
+    )
+)

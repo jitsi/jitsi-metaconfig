@@ -76,6 +76,21 @@ val port: Int by config {
     retrieve("default") { 8080 }
 }
 ```
+---
+### Conditionally enabling a property
+It's possible to guard access to a property if it should only be used based on the value of another property (e.g. a feature being enabled).
+
+The following example will only allow accessing `port` if `serverEnabled` evaluates to true.  If it doesn't, then `ConfigException.UnableToRetrieve.ConditionNotMet` will be thrown.
+
+```kotlin
+val serverEnabled: Boolean by config("app.server.enabled".from(config))
+
+val port: Int by conditionalconfig(::serverEnabled) {
+    retrieve("path.to.port".from(myConfig))
+    // Since the lambda is opaque, the description gives some context
+    retrieve("default") { 8080 }
+}
+```
 
 ---
 ### Optional properties
