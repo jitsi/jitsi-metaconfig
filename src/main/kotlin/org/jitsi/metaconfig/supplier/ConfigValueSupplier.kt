@@ -2,33 +2,24 @@ package org.jitsi.metaconfig.supplier
 
 import org.jitsi.metaconfig.ConfigException
 import org.jitsi.metaconfig.Deprecation
-import org.jitsi.metaconfig.MetaconfigSettings
 
 /**
  * A [ConfigValueSupplier] is a class which is responsible for retrieving the value
  * of a configuration property.
  */
-abstract class ConfigValueSupplier<ValueType : Any>(
-    private val deprecation: Deprecation
-) {
-    private var deprecationWarningLogged = false
-
-    private val value: ValueType by lazy {
-        doGet().also {
-            if (deprecation is Deprecation.Deprecated.Soft && !deprecationWarningLogged) {
-                MetaconfigSettings.logger.warn {
-                    "A value was retrieved via $this which is deprecated: ${deprecation.msg}"
-                }
-                deprecationWarningLogged = true
-            } else if (deprecation is Deprecation.Deprecated.Hard) {
-                throw ConfigException.UnableToRetrieve.Deprecated(
-                    "A value was retrieved via $this which is deprecated: ${deprecation.msg}"
-                )
-            }
-        }
-    }
+abstract class ConfigValueSupplier<ValueType : Any> {
+    private val value: ValueType by lazy { doGet() }
 
     fun get(): ValueType = value
+
+    /**
+     * Apply a [Deprecation] to this [ConfigValueSupplier].  By default it does nothing.  This should
+     * only be overridden by classes which retrieve properties from some "source" (e.g. a file).
+     * Suppliers which wrap another an do some kind of transformation, for example,
+     * shouldn't override this.
+     *
+     */
+    open fun withDeprecation(deprecation: Deprecation): ConfigValueSupplier<ValueType> = this
 
     /**
      * Get the value from this supplier.  Throws [ConfigException.UnableToRetrieve]

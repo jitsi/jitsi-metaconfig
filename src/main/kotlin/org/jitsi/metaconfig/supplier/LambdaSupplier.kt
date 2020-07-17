@@ -1,16 +1,12 @@
 package org.jitsi.metaconfig.supplier
 
-import org.jitsi.metaconfig.Deprecation
 import org.jitsi.metaconfig.MetaconfigSettings
 
 class LambdaSupplier<ValueType : Any>(
     private val context: String,
-    deprecation: Deprecation,
     private val supplier: () -> ValueType
-) : ConfigValueSupplier<ValueType>(deprecation) {
-    constructor(supplier: () -> ValueType) : this("", Deprecation.NotDeprecated, supplier)
-    constructor(deprecation: Deprecation, supplier: () -> ValueType) : this("", deprecation, supplier)
-    constructor(context: String, supplier: () -> ValueType) : this(context, Deprecation.NotDeprecated, supplier)
+) : ConfigValueSupplier<ValueType>() {
+    constructor(supplier: () -> ValueType) : this("", supplier)
 
     override fun doGet(): ValueType {
         MetaconfigSettings.logger.debug {

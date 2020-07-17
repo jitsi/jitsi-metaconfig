@@ -41,14 +41,14 @@ sealed class ConfigPropertyState {
              * Add a value transformation operation
              */
             fun andTransformBy(transformer: (T) -> T): ValueTransformation<T> {
-                return ValueTransformation(key, source, type, transformer, deprecation)
+                return ValueTransformation(ConfigSourceSupplier(key, source, type, deprecation), transformer)
             }
 
             /**
              * Add a type conversion operation
              */
             fun <NewType : Any> andConvertBy(converter: (T) -> NewType): TypeConversion<T, NewType> {
-                return TypeConversion(key, source, type, converter, deprecation)
+                return TypeConversion(ConfigSourceSupplier(key, source, type, deprecation), converter)
             }
 
             /**
@@ -81,38 +81,30 @@ sealed class ConfigPropertyState {
          * A lookup which transforms the value in some way
          */
         class ValueTransformation<T : Any>(
-            val key: String,
-            val source: ConfigSource,
-            val type: KType,
-            val transformer: (T) -> T,
-            val deprecation: Deprecation
+            val innerSupplier: ConfigValueSupplier<T>,
+            val transformer: (T) -> T
         ) : Complete<T>() {
             override fun build(): ConfigValueSupplier<T> {
-                val sourceSupplier = ConfigSourceSupplier<T>(key, source, type, deprecation)
-                return ValueTransformingSupplier(sourceSupplier, transformer)
+                return ValueTransformingSupplier(innerSupplier, transformer)
             }
 
             override fun withDeprecation(deprecation: Deprecation) =
-                ValueTransformation(key, source, type, transformer, deprecation)
+                ValueTransformation(innerSupplier.withDeprecation(deprecation), transformer)
         }
 
         /**
          * A lookup which converts the type the value was retrieved as to another type
          */
         class TypeConversion<OriginalType : Any, NewType : Any>(
-            val key: String,
-            val source: ConfigSource,
-            val originalType: KType,
-            val converter: (OriginalType) -> NewType,
-            val deprecation: Deprecation
+            val innerSupplier: ConfigValueSupplier<OriginalType>,
+            val converter: (OriginalType) -> NewType
         ) : Complete<NewType>() {
             override fun build(): ConfigValueSupplier<NewType> {
-                val sourceSupplier = ConfigSourceSupplier<OriginalType>(key, source, originalType, deprecation)
-                return TypeConvertingSupplier(sourceSupplier, converter)
+                return TypeConvertingSupplier(innerSupplier, converter)
             }
 
             override fun withDeprecation(deprecation: Deprecation) =
-                TypeConversion(key, source, originalType, converter, deprecation)
+                TypeConversion(innerSupplier.withDeprecation(deprecation), converter)
         }
     }
 
