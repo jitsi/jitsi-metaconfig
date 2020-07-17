@@ -60,5 +60,19 @@ class ConfigPropertyStateTest : ShouldSpec({
             }
             obj.num shouldBe 43
         }
+        should("allow conditionally enabling a property") {
+            val obj = object {
+                val enabledNum: Int by conditionalconfig({true}) {
+                    retrieve("new.num".from(newConfig))
+                }
+                val disabledNum: Int by conditionalconfig({false}) {
+                    retrieve("new.num".from(newConfig))
+                }
+            }
+            obj.enabledNum shouldBe 43
+            shouldThrow<ConfigException.UnableToRetrieve.ConditionNotMet> {
+                obj.disabledNum
+            }
+        }
     }
 })

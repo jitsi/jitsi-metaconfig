@@ -2,10 +2,8 @@ package org.jitsi.metaconfig.supplier
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
-import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import org.jitsi.metaconfig.ConfigException
 import org.jitsi.metaconfig.ConfigSource
 import org.jitsi.metaconfig.noDeprecation
