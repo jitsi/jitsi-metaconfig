@@ -88,5 +88,27 @@ class ConfigPropertyStateTest : ShouldSpec({
                 obj.disabledNum
             }
         }
+        should("throw if an optional, conditional property is disabled") {
+            val obj = object {
+                val num: Int? by optionalconfig {
+                    onlyIf("enabled", { false }) {
+                        retrieve("new.num".from(newConfig))
+                    }
+                }
+            }
+            shouldThrow<ConfigException.UnableToRetrieve.ConditionNotMet> {
+                obj.num
+            }
+        }
+        should("return null if an optional, conditional property is enabled but not found") {
+            val obj = object {
+                val num: Int? by optionalconfig {
+                    onlyIf("enabled", { true }) {
+                        retrieve("missing.num".from(newConfig))
+                    }
+                }
+            }
+            obj.num shouldBe null
+        }
     }
 })

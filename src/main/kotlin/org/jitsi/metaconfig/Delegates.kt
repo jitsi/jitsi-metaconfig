@@ -21,6 +21,8 @@ class OptionalConfigDelegate<T : Any>(private val supplier: ConfigValueSupplier<
     operator fun getValue(thisRef: Any, property: KProperty<*>): T? {
         return try {
             supplier.get()
+        } catch (e: ConfigException.UnableToRetrieve.ConditionNotMet) {
+            throw e
         } catch (t: ConfigException.UnableToRetrieve) {
             null
         }
@@ -84,6 +86,11 @@ inline fun <reified T : Any> optionalconfig(configPropertyState: ConfigPropertyS
  * null if the property couldn't be retrieved
  */
 inline fun <reified T : Any> optionalconfig(block: SupplierBuilder<T>.() -> Unit): OptionalConfigDelegate<T> {
-    val builder = SupplierBuilder<T>(typeOf<T>()).apply(block)
-    return OptionalConfigDelegate(FallbackSupplier(builder.suppliers))
+    val supplier = SupplierBuilder<T>(typeOf<T>()).apply(block)
+    return if (supplier.suppliers.size == 1) {
+        // Avoid wrapping in a FallbackSupplier if we don't need one
+        OptionalConfigDelegate(supplier.suppliers.first())
+    } else {
+        return OptionalConfigDelegate(FallbackSupplier(supplier.suppliers))
+    }
 }
