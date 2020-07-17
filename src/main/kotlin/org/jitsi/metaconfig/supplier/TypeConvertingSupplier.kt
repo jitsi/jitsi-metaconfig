@@ -13,7 +13,7 @@ import org.jitsi.metaconfig.noDeprecation
 class TypeConvertingSupplier<OriginalType : Any, NewType : Any>(
     private val originalSupplier: ConfigValueSupplier<OriginalType>,
     private val converter: (OriginalType) -> NewType
-) : ConfigValueSupplier<NewType>(noDeprecation()) {
+) : ConfigValueSupplier<NewType>() {
 
     override fun doGet(): NewType {
         return converter(originalSupplier.get()).also {

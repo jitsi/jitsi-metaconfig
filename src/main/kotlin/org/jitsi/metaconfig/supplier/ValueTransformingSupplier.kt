@@ -12,7 +12,7 @@ import org.jitsi.metaconfig.noDeprecation
 class ValueTransformingSupplier<ValueType : Any>(
     private val originalSupplier: ConfigValueSupplier<ValueType>,
     private val transformer: (ValueType) -> ValueType
-) : ConfigValueSupplier<ValueType>(noDeprecation()) {
+) : ConfigValueSupplier<ValueType>() {
 
     override fun doGet(): ValueType {
         return transformer(originalSupplier.get()).also {

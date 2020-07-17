@@ -13,7 +13,7 @@ import org.jitsi.metaconfig.noDeprecation
  */
 class FallbackSupplier<ValueType : Any>(
     private val suppliers: List<ConfigValueSupplier<ValueType>>
-) : ConfigValueSupplier<ValueType>(noDeprecation()) {
+) : ConfigValueSupplier<ValueType>() {
 
     override fun doGet(): ValueType {
         MetaconfigSettings.logger.debug {

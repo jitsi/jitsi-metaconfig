@@ -29,7 +29,7 @@ class SupplierBuilder<T : Any>(val finalType: KType) {
     fun retrieve(context: String, lambda: () -> T) = retrieve(context, noDeprecation(), lambda)
 
     fun retrieve(context: String, deprecation: Deprecation, lambda: () -> T) {
-        suppliers += LambdaSupplier(context, deprecation, lambda)
+        suppliers += LambdaSupplier(context, lambda)
     }
 
     /**
