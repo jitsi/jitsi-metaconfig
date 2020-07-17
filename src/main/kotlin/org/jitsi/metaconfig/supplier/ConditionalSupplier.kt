@@ -1,5 +1,6 @@
 package org.jitsi.metaconfig.supplier
 
+import org.jitsi.metaconfig.Condition
 import org.jitsi.metaconfig.ConfigException
 
 /**
@@ -8,16 +9,16 @@ import org.jitsi.metaconfig.ConfigException
  * [ConfigException.UnableToRetrieve.ConditionNotMet] is thrown.
  */
 class ConditionalSupplier<ValueType : Any>(
-    private val predicate: () -> Boolean,
+    private val condition: Condition,
     innerSuppliers: List<ConfigValueSupplier<ValueType>>
 ) : ConfigValueSupplier<ValueType>() {
     private val innerSupplier = FallbackSupplier(innerSuppliers)
 
     override fun doGet(): ValueType {
-        if (predicate()) {
+        if (condition.enabled()) {
             return innerSupplier.get()
         } else {
-            throw ConfigException.UnableToRetrieve.ConditionNotMet("Predicate not met on conditional property")
+            throw ConfigException.UnableToRetrieve.ConditionNotMet("Condition not met: ${condition.context}")
         }
     }
 
