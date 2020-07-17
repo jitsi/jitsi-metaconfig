@@ -1,5 +1,6 @@
 package org.jitsi.metaconfig
 
+import org.jitsi.metaconfig.supplier.ConditionalSupplier
 import org.jitsi.metaconfig.supplier.ConfigValueSupplier
 import org.jitsi.metaconfig.supplier.FallbackSupplier
 import kotlin.reflect.KProperty
@@ -81,4 +82,9 @@ inline fun <reified T : Any> optionalconfig(configPropertyState: ConfigPropertyS
 inline fun <reified T : Any> optionalconfig(block: SupplierBuilder<T>.() -> Unit): OptionalConfigDelegate<T> {
     val builder = SupplierBuilder<T>(typeOf<T>()).apply(block)
     return OptionalConfigDelegate(FallbackSupplier(builder.suppliers))
+}
+
+inline fun <reified T : Any> conditionalconfig(noinline predicate: () -> Boolean, block: SupplierBuilder<T>.() -> Unit): ConfigDelegate<T> {
+    val supplier = SupplierBuilder<T>(typeOf<T>()).apply(block)
+    return ConfigDelegate(ConditionalSupplier(predicate, supplier.suppliers))
 }
