@@ -60,6 +60,15 @@ class ConfigValueSupplierTest : ShouldSpec({
                         it.contains(Regex(".*A value was retrieved via .* which is deprecated: deprecated"))
                     } shouldBe true
                 }
+                context("even when wrapped") {
+                    val t = ValueTransformingSupplier(s) { it + 1}
+                    should("log a warning") {
+                        s.get() shouldBe 42
+                        mockLogger.warnMessages.any {
+                            it.contains(Regex(".*A value was retrieved via .* which is deprecated: deprecated"))
+                        } shouldBe true
+                    }
+                }
             }
             context("that doesn't find a value") {
                 val s = ConfigSourceSupplier<Int>(
