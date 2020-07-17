@@ -23,13 +23,6 @@ class ConfigSourceSupplierTest : ShouldSpec({
             typeOf<Int>(),
             noDeprecation()
         )
-        should("query the source every time when accessed") {
-            every { configSource.getterFor(typeOf<Int>()) } returns { 42 }
-
-            css.get() shouldBe 42
-            css.get() shouldBe 42
-            verify(exactly = 2) { configSource.getterFor(typeOf<Int>()) }
-        }
         context("when the property isn't present") {
             every { configSource.getterFor(typeOf<Int>()) } throws ConfigException.UnableToRetrieve.NotFound("not found")
             shouldThrow<ConfigException.UnableToRetrieve.NotFound> {

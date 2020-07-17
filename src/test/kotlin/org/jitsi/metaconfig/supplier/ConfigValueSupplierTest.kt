@@ -21,6 +21,30 @@ class ConfigValueSupplierTest : ShouldSpec({
     }
 
     context("A ConfigValueSupplier") {
+        should("cache the retrieved value") {
+            var supplierCallCount = 0
+            val s = LambdaSupplier("foo") {
+                supplierCallCount++
+                42
+            }
+            s.get() shouldBe 42
+            supplierCallCount shouldBe 1
+            s.get() shouldBe 42
+            supplierCallCount shouldBe 1
+        }
+        should("throw the exception every time if it isn't found") {
+            var supplierCallCount = 0
+            val s = LambdaSupplier<Int>("foo") {
+                supplierCallCount++
+                throw ConfigException.UnableToRetrieve.NotFound("not found")
+            }
+            shouldThrow<ConfigException.UnableToRetrieve.NotFound> {
+                s.get()
+            }
+            shouldThrow<ConfigException.UnableToRetrieve.NotFound> {
+                s.get()
+            }
+        }
         context("marked as soft deprecated") {
             context("that finds a value") {
                 val s = LambdaSupplier(softDeprecation("deprecated")) { 42 }
