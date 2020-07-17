@@ -2,6 +2,7 @@
 
 package org.jitsi.metaconfig
 
+import org.jitsi.metaconfig.supplier.ConditionalSupplier
 import org.jitsi.metaconfig.supplier.ConfigValueSupplier
 import org.jitsi.metaconfig.supplier.LambdaSupplier
 import kotlin.reflect.KType
@@ -29,6 +30,13 @@ class SupplierBuilder<T : Any>(val finalType: KType) {
     fun retrieve(context: String, lambda: () -> T) {
         suppliers += LambdaSupplier(context, lambda)
     }
+
+    fun onlyIf(condition: Condition, block: SupplierBuilder<T>.() -> Unit) {
+        val supplier = SupplierBuilder<T>(finalType).apply(block)
+        suppliers += ConditionalSupplier(condition, supplier.suppliers)
+    }
+    fun onlyIf(context: String, predicate: () -> Boolean, block: SupplierBuilder<T>.() -> Unit) =
+        onlyIf(Condition(context, predicate), block)
 
     /**
      * Once the key and source are set, automatically set the inferred type.  If the user wants to retrieve

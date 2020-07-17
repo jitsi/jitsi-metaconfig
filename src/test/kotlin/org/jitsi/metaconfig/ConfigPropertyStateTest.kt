@@ -72,11 +72,15 @@ class ConfigPropertyStateTest : ShouldSpec({
         }
         should("allow conditionally enabling a property") {
             val obj = object {
-                val enabledNum: Int by conditionalconfig({true}) {
-                    retrieve("new.num".from(newConfig))
+                val enabledNum: Int by config {
+                    onlyIf("enabled", { true }) {
+                        retrieve("new.num".from(newConfig))
+                    }
                 }
-                val disabledNum: Int by conditionalconfig({false}) {
-                    retrieve("new.num".from(newConfig))
+                val disabledNum: Int by config {
+                    onlyIf("enabled", { false} ) {
+                        retrieve("new.num".from(newConfig))
+                    }
                 }
             }
             obj.enabledNum shouldBe 43
