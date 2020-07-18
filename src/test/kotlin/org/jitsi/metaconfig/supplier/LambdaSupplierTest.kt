@@ -1,8 +1,10 @@
 package org.jitsi.metaconfig.supplier
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import org.jitsi.metaconfig.ConfigException
 
 class LambdaSupplierTest : ShouldSpec({
     var lambdaCallCount = 0
@@ -21,6 +23,14 @@ class LambdaSupplierTest : ShouldSpec({
             val lsc = LambdaSupplier("hard-coded value of 42", lambda)
             should("include the context in the toString") {
                 lsc.toString() shouldContain "hard-coded value of 42"
+            }
+        }
+        context("that throws any kind of exception") {
+            val lsc = LambdaSupplier<Int> { throw RuntimeException() }
+            should("throw NotFound") {
+                shouldThrow<ConfigException.UnableToRetrieve.NotFound> {
+                    lsc.get()
+                }
             }
         }
     }

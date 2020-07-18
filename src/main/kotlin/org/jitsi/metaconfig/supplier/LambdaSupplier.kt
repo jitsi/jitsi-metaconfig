@@ -1,5 +1,6 @@
 package org.jitsi.metaconfig.supplier
 
+import org.jitsi.metaconfig.ConfigException
 import org.jitsi.metaconfig.MetaconfigSettings
 
 class LambdaSupplier<ValueType : Any>(
@@ -12,10 +13,16 @@ class LambdaSupplier<ValueType : Any>(
         MetaconfigSettings.logger.debug {
             "${this::class.simpleName}: Trying to retrieve value via $context"
         }
-        return supplier().also {
-            MetaconfigSettings.logger.debug {
-                "$this: found value"
+        return try {
+            supplier().also {
+                MetaconfigSettings.logger.debug {
+                    "$this: found value"
+                }
             }
+        } catch (e: ConfigException) {
+            throw e
+        } catch (t: Throwable) {
+            throw ConfigException.UnableToRetrieve.NotFound("Lambda supplier $context unable to retrieve value")
         }
     }
 
