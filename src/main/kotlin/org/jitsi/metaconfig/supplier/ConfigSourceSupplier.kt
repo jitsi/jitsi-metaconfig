@@ -28,12 +28,12 @@ class ConfigSourceSupplier<ValueType : Any>(
             }
             if (deprecation is Deprecation.Deprecated.Soft && !deprecationWarningLogged) {
                 MetaconfigSettings.logger.warn {
-                    "A value was retrieved via $this which is deprecated: ${deprecation.msg}"
+                    "Key '$key' from source '${source.name}' is deprecated: ${deprecation.msg}"
                 }
                 deprecationWarningLogged = true
             } else if (deprecation is Deprecation.Deprecated.Hard) {
                 throw ConfigException.UnableToRetrieve.Deprecated(
-                    "A value was retrieved via $this which is deprecated: ${deprecation.msg}"
+                    "Key '$key' from source '${source.name}' is deprecated: ${deprecation.msg}"
                 )
             }
         }

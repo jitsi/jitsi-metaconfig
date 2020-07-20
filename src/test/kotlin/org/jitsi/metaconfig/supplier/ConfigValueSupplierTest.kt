@@ -1,7 +1,10 @@
 package org.jitsi.metaconfig.supplier
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.inspectors.forNone
+import io.kotest.inspectors.forOne
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldMatch
 import org.jitsi.MockLogger
@@ -56,17 +59,17 @@ class ConfigValueSupplierTest : ShouldSpec({
                     "new.num", config, typeOf<Int>(), softDeprecation("deprecated"))
                 should("log a warning") {
                     s.get() shouldBe 42
-                    mockLogger.warnMessages.any {
-                        it.contains(Regex(".*A value was retrieved via .* which is deprecated: deprecated"))
-                    } shouldBe true
+                    mockLogger.warnMessages.forOne {
+                        it shouldBe "Key 'new.num' from source 'config' is deprecated: deprecated"
+                    }
                 }
                 context("even when wrapped") {
                     val t = ValueTransformingSupplier(s) { it + 1}
                     should("log a warning") {
                         s.get() shouldBe 42
-                        mockLogger.warnMessages.any {
-                            it.contains(Regex(".*A value was retrieved via .* which is deprecated: deprecated"))
-                        } shouldBe true
+                        mockLogger.warnMessages.forOne {
+                            it shouldBe "Key 'new.num' from source 'config' is deprecated: deprecated"
+                        }
                     }
                 }
             }
@@ -77,9 +80,9 @@ class ConfigValueSupplierTest : ShouldSpec({
                     shouldThrow<ConfigException.UnableToRetrieve.NotFound> {
                         s.get()
                     }
-                    mockLogger.warnMessages.none {
-                        it.contains(Regex(".*A value was retrieved via .* which is deprecated: deprecated"))
-                    } shouldBe true
+                    mockLogger.warnMessages.forNone {
+                        it shouldBe "Key 'new.num' from source 'config' is deprecated: deprecated"
+                    }
                 }
             }
         }
@@ -91,7 +94,7 @@ class ConfigValueSupplierTest : ShouldSpec({
                     val ex = shouldThrow<ConfigException.UnableToRetrieve.Deprecated> {
                         s.get()
                     }
-                    ex.message.shouldMatch(Regex(".*A value was retrieved via .* which is deprecated: deprecated"))
+                    ex.message shouldBe "Key 'new.num' from source 'config' is deprecated: deprecated"
                 }
             }
             context("that doesn't find a value") {

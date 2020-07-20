@@ -147,7 +147,7 @@ val serverEnabled: Boolean by config {
 ```
 If a value is retrieved via "app.server.enabled" from myConfig, a warning will be logged:
 
-> WARN: A value was retrieved via ConfigSourceSupplier: key: 'app.server.enabled', type: 'kotlin.Boolean', source: 'myConfig' which is deprecated: use app.api.server.enabled
+> WARN: Key 'app.server.enabled' from source 'myConfig' is dprecated: use app.api.server.enabled
 
 This warning is only printed once, and only if the value marked as deprecated was used as the "result".
 
