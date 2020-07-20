@@ -85,10 +85,12 @@ The following example will only allow accessing `port` if `serverEnabled` evalua
 ```kotlin
 val serverEnabled: Boolean by config("app.server.enabled".from(config))
 
-val port: Int by conditionalconfig(::serverEnabled) {
-    retrieve("path.to.port".from(myConfig))
-    // Since the lambda is opaque, the description gives some context
-    retrieve("default") { 8080 }
+val port: Int by config {
+    onlyIf("Server is enabled", ::serverEnabled) {
+        retrieve("path.to.port".from(myConfig))
+        // Since the lambda is opaque, the description gives some context
+        retrieve("default") { 8080 }
+    }
 }
 ```
 

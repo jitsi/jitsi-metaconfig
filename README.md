@@ -43,8 +43,10 @@ class Foo {
     }
 
     // Only allow access to port if 'enabled' is true (throws an exception otherwise)
-    val port: Int by conditionalconfig(::enabled) {
-        retrieve("path.to.port".from(newConfigSource))
+    val port: Int by config {
+        onlyIf("Server is enabled", ::enabled) {
+            retrieve("path.to.port".from(newConfigSource))
+        }
     }
 }
 ```
