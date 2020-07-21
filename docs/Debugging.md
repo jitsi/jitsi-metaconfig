@@ -2,7 +2,7 @@
 
 jitsi-metaconfig defines a simple `MetaconfigLogger` interface to enable logging.  jitsi-metaconfig logs debug messages when it searches through suppliers for a value which can be useful if it doesn't arrive at the value you suspect.
 
-For example, to To set up the jitsi-metaconfig logger:
+For example, to set up the jitsi-metaconfig logger:
 ```kotlin
 // For example, your app uses java.util.logger
 val logger = Logger.getLogger("metaconfig")
