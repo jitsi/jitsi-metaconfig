@@ -26,8 +26,8 @@ val booleanSupplier: ConfigValueSupplier<Boolean> = ConfigSourceSupplier(
     myConfigSource,
     typeOf<Boolean>()
 )
-val inverted: ConfigValueSupplier<Boolean> =ValueTransformingSupplier(
-    boolean,
+val inverted: ConfigValueSupplier<Boolean> = ValueTransformingSupplier(
+    booleanSupplier,
     { !it }
 )
 ```
