@@ -1,5 +1,4 @@
-![Java CI with Maven](https://github.com/bbaldino/jitsi-metaconfig/workflows/Java%20CI%20with%20Maven/badge.svg)
-
+![Java CI with Maven](https://github.com/bbaldino/jitsi-metaconfig/workflows/Java%20CI%20with%20Maven/badge.svg) 
 ![Code Coverage](https://codecov.io/gh/bbaldino/jitsi-metaconfig/branch/master/graph/badge.svg)
 
 # jitsi-metaconfig
