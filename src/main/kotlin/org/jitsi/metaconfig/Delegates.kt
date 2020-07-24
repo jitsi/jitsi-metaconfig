@@ -67,11 +67,13 @@ inline fun <reified T : Any> config(configPropertyState: ConfigPropertyState.Inc
  */
 inline fun <reified T : Any> config(block: SupplierBuilder<T>.() -> Unit): ConfigDelegate<T> {
     val supplier = SupplierBuilder<T>(typeOf<T>()).apply(block)
-    return if (supplier.suppliers.size == 1) {
-        // Avoid wrapping in a FallbackSupplier if we don't need one
-        ConfigDelegate(supplier.suppliers.first())
-    } else {
-        return ConfigDelegate(FallbackSupplier(supplier.suppliers))
+    with(supplier.getSuppliersNew()) {
+        return if (size == 1) {
+            // Avoid wrapping in a FallbackSupplier if we don't need one
+            ConfigDelegate(first())
+        } else {
+            return ConfigDelegate(FallbackSupplier(this))
+        }
     }
 }
 
@@ -86,7 +88,7 @@ inline fun <reified T : Any> config(block: SupplierBuilder<T>.() -> Unit): Confi
  */
 inline fun <reified T : Any> configSupplier(block: SupplierBuilder<T>.() -> Unit): ConfigValueSupplier<T> {
     val supplier = SupplierBuilder<T>(typeOf<T>()).apply(block)
-    return FallbackSupplier(supplier.suppliers)
+    return FallbackSupplier(supplier.getSuppliersNew())
 }
 
 /**
@@ -103,10 +105,12 @@ inline fun <reified T : Any> optionalconfig(configPropertyState: ConfigPropertyS
  */
 inline fun <reified T : Any> optionalconfig(block: SupplierBuilder<T>.() -> Unit): OptionalConfigDelegate<T> {
     val supplier = SupplierBuilder<T>(typeOf<T>()).apply(block)
-    return if (supplier.suppliers.size == 1) {
-        // Avoid wrapping in a FallbackSupplier if we don't need one
-        OptionalConfigDelegate(supplier.suppliers.first())
-    } else {
-        return OptionalConfigDelegate(FallbackSupplier(supplier.suppliers))
+    with(supplier.getSuppliersNew()) {
+        return if (size == 1) {
+            // Avoid wrapping in a FallbackSupplier if we don't need one
+            OptionalConfigDelegate(first())
+        } else {
+            return OptionalConfigDelegate(FallbackSupplier(this))
+        }
     }
 }

@@ -26,7 +26,7 @@ class TypeConvertingPropertyTest : ShouldSpec({
     context("a class with a proeprty whose type is converted") {
         val obj = object {
             val duration: Duration by config {
-                retrieve("interval".from(configSrc).asType<Long>().andConvertBy(Duration::ofMillis))
+                "interval".from(configSrc).convertFrom<Long>(Duration::ofMillis)
             }
         }
         context("when the property is present in the config") {

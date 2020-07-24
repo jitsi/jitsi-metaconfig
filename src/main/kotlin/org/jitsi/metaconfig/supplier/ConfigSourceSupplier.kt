@@ -32,6 +32,9 @@ class ConfigSourceSupplier<ValueType : Any>(
     private val deprecation: Deprecation
 ) : ConfigValueSupplier<ValueType>() {
     private var deprecationWarningLogged = false
+    init {
+        println("Config source supplier: type = $type")
+    }
 
     @Suppress("UNCHECKED_CAST")
     override fun doGet(): ValueType {

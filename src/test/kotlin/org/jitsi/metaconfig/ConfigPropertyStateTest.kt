@@ -54,7 +54,7 @@ class ConfigPropertyStateTest : ShouldSpec({
         should("allow marking a property with a key, a source and a transformation as hard deprecated") {
             val obj = object {
                 val num: Int by config {
-                    retrieve("legacy.num".from(legacyConfig).andTransformBy { it + 1 }.hardDeprecated("use new.num"))
+                    "legacy.num".from(legacyConfig).transformedBy { it + 1 }.hardDeprecated("use new.num")
                 }
             }
             shouldThrow<ConfigException.UnableToRetrieve.Deprecated> {
@@ -64,7 +64,7 @@ class ConfigPropertyStateTest : ShouldSpec({
         should("allow transforming the value of a property") {
             val obj = object {
                 val num: Int by config {
-                    retrieve("legacy.num".from(legacyConfig).andTransformBy { it / 2 })
+                    "legacy.num".from(legacyConfig).transformedBy { it / 2 }
                 }
             }
             obj.num shouldBe 21
@@ -72,7 +72,7 @@ class ConfigPropertyStateTest : ShouldSpec({
         should("allow converting the type of a property") {
             val obj = object {
                 val interval: Duration by config {
-                    retrieve("legacy.interval".from(legacyConfig).asType<Long>().andConvertBy(Duration::ofMillis))
+                    "legacy.interval".from(legacyConfig).convertFrom<Long>(Duration::ofMillis)
                 }
             }
             obj.interval shouldBe Duration.ofMillis(5000)
@@ -80,8 +80,8 @@ class ConfigPropertyStateTest : ShouldSpec({
         should("allow falling back across multiple properties") {
             val obj = object {
                 val num: Int by config {
-                    retrieve("some.missing.path".from(legacyConfig))
-                    retrieve("new.num".from(newConfig))
+                    "some.missing.path".from(legacyConfig)
+                    "new.num".from(newConfig)
                 }
             }
             obj.num shouldBe 43
@@ -90,12 +90,12 @@ class ConfigPropertyStateTest : ShouldSpec({
             val obj = object {
                 val enabledNum: Int by config {
                     onlyIf("enabled", { true }) {
-                        retrieve("new.num".from(newConfig))
+                        "new.num".from(newConfig)
                     }
                 }
                 val disabledNum: Int by config {
                     onlyIf("enabled", { false} ) {
-                        retrieve("new.num".from(newConfig))
+                        "new.num".from(newConfig)
                     }
                 }
             }
@@ -108,7 +108,7 @@ class ConfigPropertyStateTest : ShouldSpec({
             val obj = object {
                 val num: Int? by optionalconfig {
                     onlyIf("enabled", { false }) {
-                        retrieve("new.num".from(newConfig))
+                        "new.num".from(newConfig)
                     }
                 }
             }
@@ -120,11 +120,20 @@ class ConfigPropertyStateTest : ShouldSpec({
             val obj = object {
                 val num: Int? by optionalconfig {
                     onlyIf("enabled", { true }) {
-                        retrieve("missing.num".from(newConfig))
+                        "missing.num".from(newConfig)
                     }
                 }
             }
             obj.num shouldBe null
+        }
+        should("maintain the order between lambda and config source suppliers") {
+            val obj = object {
+                val num: Int by config {
+                    "legacy.num".from(legacyConfig)
+                    "hard-coded" { 1000 }
+                }
+            }
+            obj.num shouldBe 42
         }
     }
 })

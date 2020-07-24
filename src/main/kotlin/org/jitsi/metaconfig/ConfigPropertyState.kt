@@ -40,9 +40,9 @@ sealed class ConfigPropertyState {
          * Build a [ConfigValueSupplier].  Required for any subclass of [Complete].
          */
         abstract fun build(): ConfigValueSupplier<T>
-        fun softDeprecated(msg: String) = withDeprecation(softDeprecation(msg))
-        fun hardDeprecated(msg: String) = withDeprecation(hardDeprecation(msg))
-        protected abstract fun withDeprecation(deprecation: Deprecation): Complete<T>
+        // TODO: prevent config property call site from calling this, but
+        // the builder needs to be able to
+        abstract fun withDeprecation(deprecation: Deprecation): Complete<T>
 
         /**
          * A simple lookup of a property value from the given source as the given type
@@ -53,38 +53,6 @@ sealed class ConfigPropertyState {
             val type: KType,
             val deprecation: Deprecation
         ) : Complete<T>() {
-            /**
-             * Add a value transformation operation
-             */
-            fun andTransformBy(transformer: (T) -> T): ValueTransformation<T> {
-                return ValueTransformation(ConfigSourceSupplier(key, source, type, deprecation), transformer)
-            }
-
-            /**
-             * Add a type conversion operation
-             */
-            fun <NewType : Any> andConvertBy(converter: (T) -> NewType): TypeConversion<T, NewType> {
-                return TypeConversion(ConfigSourceSupplier(key, source, type, deprecation), converter)
-            }
-
-            /**
-             * We allow updating the type here so that helper functions can fill in the type
-             * automatically (since they can derive it from the call) so the caller doesn't have
-             * to, however, the helpers will use the final type as a guess; if the caller wants
-             * to retrieve the property as another type and then convert it, we need to let them
-             * set the retrieved type via this asType call and then use [andConvertBy].  For example:
-             * val bool: Boolean by config {
-             *     // No need to use 'asType<Boolean>', we can determine that
-             *     "app.enabled".from(newConfigSource)
-             *     // Here the caller didn't want to retrieve it as bool, so they override the type
-             *     // via another call to 'asType' and then convert the value to a Boolean.
-             *     "app.enabled".from(newConfigSource).asType<Int>.andConvertBy { it > 0 }
-             * }
-             */
-            inline fun <reified R : Any> asType(): NoTransformation<R> {
-                return NoTransformation(key, source, typeOf<R>(), noDeprecation())
-            }
-
             override fun build(): ConfigValueSupplier<T> {
                 return ConfigSourceSupplier(key, source, type, deprecation)
             }
@@ -151,13 +119,6 @@ sealed class ConfigPropertyState {
             fun <T : Any> asType(type: KType): Complete.NoTransformation<T> {
                 return Complete.NoTransformation(key, source, type, deprecation)
             }
-
-            // These don't make sense until we have at least a key and a source, so put them in
-            // KeyAndSource instead of defining at Incomplete (or at ConfigPropertyState)
-            fun softDeprecated(msg: String) = withDeprecation(softDeprecation(msg))
-            fun hardDeprecated(msg: String) = withDeprecation(hardDeprecation(msg))
-            protected fun withDeprecation(deprecation: Deprecation) =
-                KeyAndSource(key, source, deprecation)
         }
     }
 }
