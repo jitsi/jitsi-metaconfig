@@ -17,6 +17,7 @@
 package org.jitsi.metaconfig.supplier
 
 import org.jitsi.metaconfig.ConfigException
+import org.jitsi.metaconfig.Deprecation
 import org.jitsi.metaconfig.MetaconfigSettings
 import org.jitsi.metaconfig.noDeprecation
 
@@ -57,6 +58,9 @@ class FallbackSupplier<ValueType : Any>(
             "No suppliers found a value:${exceptions.joinToString(prefix = "\n  ", separator = "\n  ")}"
         )
     }
+
+    override fun withDeprecation(deprecation: Deprecation): FallbackSupplier<ValueType> =
+        FallbackSupplier(suppliers.map { it.withDeprecation(deprecation) })
 
     override fun toString(): String = "${this::class.simpleName}: checking suppliers:" +
         suppliers.joinToString(prefix = "\n  ", separator = "\n  ")

@@ -21,7 +21,7 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import java.time.Duration
 
-class ConfigPropertyStateTest : ShouldSpec({
+class ConfigPropertyBuildingTest : ShouldSpec({
     val legacyConfig = MapConfigSource("legacy config") {
         put("legacy.num", 42)
         put("legacy.interval", 5000L)
@@ -39,13 +39,17 @@ class ConfigPropertyStateTest : ShouldSpec({
         }
         should("allow marking a property with a key and a source as soft deprecated") {
             val obj = object {
-                val num: Int by config("legacy.num".from(legacyConfig).softDeprecated("use new.num"))
+                val num: Int by config {
+                    "legacy.num".from(legacyConfig).softDeprecated("use new.num")
+                }
             }
             obj.num shouldBe 42
         }
         should("allow marking a property with a key and a source as hard deprecated") {
             val obj = object {
-                val num: Int by config("legacy.num".from(legacyConfig).hardDeprecated("use new.num"))
+                val num: Int by config {
+                    "legacy.num".from(legacyConfig).hardDeprecated("use new.num")
+                }
             }
             shouldThrow<ConfigException.UnableToRetrieve.Deprecated> {
                 obj.num
