@@ -22,20 +22,20 @@ import org.jitsi.metaconfig.MetaconfigSettings
 
 class LambdaSupplier<ValueType : Any>(
     private val context: String,
-    private val supplier: () -> ValueType?
+    private val supplier: () -> ValueType
 ) : ConfigValueSupplier<ValueType>() {
-    constructor(supplier: () -> ValueType?) : this("", supplier)
+    constructor(supplier: () -> ValueType) : this("", supplier)
 
     override fun doGet(): ValueType {
         MetaconfigSettings.logger.debug {
             "${this::class.simpleName}: Trying to retrieve value via $context"
         }
         return try {
-            supplier()?.also {
+            supplier().also {
                 MetaconfigSettings.logger.debug {
                     "$this: found value"
                 }
-            } ?: throw ConfigException.UnableToRetrieve.NotFound("null result")
+            }
         } catch (e: ConfigException) {
             throw e
         } catch (t: Throwable) {
@@ -43,9 +43,8 @@ class LambdaSupplier<ValueType : Any>(
         }
     }
 
-    // TODO: don't make this method abstract at the top level?
     override fun withDeprecation(deprecation: Deprecation): LambdaSupplier<ValueType> =
-        throw Exception("Lambda props can't be marked as deprecated!")
+        throw Exception("LambdaSupplier can't be marked as deprecated!")
 
     override fun toString(): String = "${this::class.simpleName}${if (context.isNotBlank()) ": '$context'" else ""}"
 }

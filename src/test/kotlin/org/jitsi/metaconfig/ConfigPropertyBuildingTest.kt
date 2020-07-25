@@ -130,14 +130,5 @@ class ConfigPropertyBuildingTest : ShouldSpec({
             }
             obj.num shouldBe null
         }
-        should("maintain the order between lambda and config source suppliers") {
-            val obj = object {
-                val num: Int by config {
-                    "legacy.num".from(legacyConfig)
-                    "hard-coded" { 1000 }
-                }
-            }
-            obj.num shouldBe 42
-        }
     }
 })
