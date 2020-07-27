@@ -8,12 +8,12 @@ For example, to set up the jitsi-metaconfig logger:
 val logger = Logger.getLogger("metaconfig")
 
 val metaconfigLogger = object : MetaconfigLogger {
-    override fun error(block: () -> String) { 
+    override fun error(block: () -> String) {
         logger.error(block())
-    }  
-    override fun warn(block: () -> String) { 
+    }
+    override fun warn(block: () -> String) {
         logger.warn(block())
-    }  
+    }
     override fun debug(block: () -> String) {
         logger.fine(block)
     }
@@ -23,10 +23,10 @@ val metaconfigLogger = object : MetaconfigLogger {
 ### Logging when searching for a value
 If you have a property:
 ```kotlin
-val num: Int by config {  
-    retrieve("some.missing.path".from(legacyConfig))  
-    retrieve("new.num".from(newConfig))  
-    retrieve("default value") { 8080 }  
+val num: Int by config {
+    "some.missing.path".from(legacyConfig)
+    "new.num".from(newConfig)
+    "default value" { 8080 }
 }
 ```
 
