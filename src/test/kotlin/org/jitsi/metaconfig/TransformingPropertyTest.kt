@@ -26,7 +26,7 @@ class TransformingPropertyTest : ShouldSpec({
     context("a class with a property whose value is transformed") {
         val obj = object {
             val enabled: Boolean by config {
-                retrieve("disabled".from(configSrc).andTransformBy { !it })
+                "disabled".from(configSrc).transformedBy { !it }
             }
         }
         context("when the property is present in the config source") {

@@ -29,13 +29,12 @@ abstract class ConfigValueSupplier<ValueType : Any> {
     fun get(): ValueType = value
 
     /**
-     * Apply a [Deprecation] to this [ConfigValueSupplier].  By default it does nothing.  This should
-     * only be overridden by classes which retrieve properties from some "source" (e.g. a file).
-     * Suppliers which wrap another an do some kind of transformation, for example,
-     * shouldn't override this.
-     *
+     * Apply a [Deprecation] to this [ConfigValueSupplier].  Deprecation is only applied to types
+     * where it makes sense (those which retrieve a value from an 'external' location--right now
+     * only [ConfigSourceSupplier]), however, types which wrap an inner supplier must pass the
+     * deprecation 'down' so it can be applied correctly by any supplier which should observe it.
      */
-    open fun withDeprecation(deprecation: Deprecation): ConfigValueSupplier<ValueType> = this
+    abstract fun withDeprecation(deprecation: Deprecation): ConfigValueSupplier<ValueType>
 
     /**
      * Get the value from this supplier.  Throws [ConfigException.UnableToRetrieve]

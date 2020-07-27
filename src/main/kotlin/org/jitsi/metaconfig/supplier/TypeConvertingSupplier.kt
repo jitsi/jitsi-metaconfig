@@ -16,6 +16,7 @@
 
 package org.jitsi.metaconfig.supplier
 
+import org.jitsi.metaconfig.Deprecation
 import org.jitsi.metaconfig.MetaconfigSettings
 import org.jitsi.metaconfig.noDeprecation
 
@@ -37,6 +38,10 @@ class TypeConvertingSupplier<OriginalType : Any, NewType : Any>(
                 "${this::class.simpleName}: Converted value type from $originalSupplier"
             }
         }
+    }
+
+    override fun withDeprecation(deprecation: Deprecation): TypeConvertingSupplier<OriginalType, NewType> {
+        return TypeConvertingSupplier(originalSupplier.withDeprecation(deprecation), converter)
     }
 
     override fun toString(): String = "${this::class.simpleName}: converting value from $originalSupplier"

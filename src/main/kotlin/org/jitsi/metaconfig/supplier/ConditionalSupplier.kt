@@ -18,6 +18,7 @@ package org.jitsi.metaconfig.supplier
 
 import org.jitsi.metaconfig.Condition
 import org.jitsi.metaconfig.ConfigException
+import org.jitsi.metaconfig.Deprecation
 
 /**
  * A [ConfigValueSupplier] which searches through multiple inner [ConfigValueSupplier]s, in order,
@@ -37,6 +38,9 @@ class ConditionalSupplier<ValueType : Any>(
             throw ConfigException.UnableToRetrieve.ConditionNotMet("Property only enabled when: ${condition.context}")
         }
     }
+
+    override fun withDeprecation(deprecation: Deprecation): LambdaSupplier<ValueType> =
+        throw Exception("ConditionalSupplier can't be marked as deprecated!")
 
     override fun toString(): String = "${this::class.simpleName}: Enabled only when ${condition.context}: $innerSupplier"
 }

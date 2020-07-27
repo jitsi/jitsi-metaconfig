@@ -55,6 +55,13 @@ class ConfigSourceSupplier<ValueType : Any>(
         }
     }
 
+    /**
+     * Return a new [ConfigSourceSupplier] with the same key, source and deprecation but which
+     * retrieves as [newType] instead of [type].
+     */
+    fun <NewType : Any> withRetrievedType(newType: KType): ConfigSourceSupplier<NewType> =
+        ConfigSourceSupplier(key, source, newType, deprecation)
+
     override fun withDeprecation(deprecation: Deprecation): ConfigValueSupplier<ValueType> =
         ConfigSourceSupplier(key, source, type, deprecation)
 

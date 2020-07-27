@@ -27,8 +27,8 @@ class FallbackPropertyTest : ShouldSpec({
     context("a class with a fallback property") {
         val obj = object {
             val enabled: Boolean by config {
-                retrieve("old.path.enabled".from(firstConfigSource))
-                retrieve("server.enabled".from(secondConfigSource))
+                "old.path.enabled".from(firstConfigSource)
+                "server.enabled".from(secondConfigSource)
             }
         }
         context("when the property is present in the first source") {

@@ -16,6 +16,7 @@
 
 package org.jitsi.metaconfig
 
+import org.jitsi.metaconfig.supplier.ConfigSourceSupplier
 import org.jitsi.metaconfig.supplier.ConfigValueSupplier
 import org.jitsi.metaconfig.supplier.FallbackSupplier
 import kotlin.reflect.KProperty
@@ -55,9 +56,7 @@ class OptionalConfigDelegate<T : Any>(private val supplier: ConfigValueSupplier<
  *
  * throws [ConfigException.UnableToRetrieve] if the property couldn't be retrieved
  */
-inline fun <reified T : Any> config(configPropertyState: ConfigPropertyState.Incomplete.KeyAndSource): ConfigDelegate<T> {
-    return ConfigDelegate(configPropertyState.asType<T>().build())
-}
+inline fun <reified T : Any> config(supplier: ConfigSourceSupplier<T>): ConfigDelegate<T> = ConfigDelegate(supplier)
 
 /**
  * Create a [ConfigDelegate] which will query multiple [ConfigValueSupplier]s, in order, for a
@@ -66,12 +65,12 @@ inline fun <reified T : Any> config(configPropertyState: ConfigPropertyState.Inc
  * throws [ConfigException.UnableToRetrieve] if the property couldn't be retrieved
  */
 inline fun <reified T : Any> config(block: SupplierBuilder<T>.() -> Unit): ConfigDelegate<T> {
-    val supplier = SupplierBuilder<T>(typeOf<T>()).apply(block)
-    return if (supplier.suppliers.size == 1) {
+    val supplierBuilder = SupplierBuilder<T>(typeOf<T>()).apply(block)
+    return if (supplierBuilder.suppliers.size == 1) {
         // Avoid wrapping in a FallbackSupplier if we don't need one
-        ConfigDelegate(supplier.suppliers.first())
+        ConfigDelegate(supplierBuilder.suppliers.first())
     } else {
-        return ConfigDelegate(FallbackSupplier(supplier.suppliers))
+        ConfigDelegate(FallbackSupplier(supplierBuilder.suppliers))
     }
 }
 
@@ -93,20 +92,19 @@ inline fun <reified T : Any> configSupplier(block: SupplierBuilder<T>.() -> Unit
  * Create an [OptionalConfigDelegate] for a single property (no fallback) from only a key and source (filling in
  * the type automatically), returns null if the property couldn't be retrieved
  */
-inline fun <reified T : Any> optionalconfig(configPropertyState: ConfigPropertyState.Incomplete.KeyAndSource): OptionalConfigDelegate<T> {
-    return OptionalConfigDelegate(configPropertyState.asType<T>().build())
-}
+inline fun <reified T : Any> optionalconfig(supplier: ConfigSourceSupplier<T>): OptionalConfigDelegate<T> =
+    OptionalConfigDelegate(supplier)
 
 /**
  * Create an [OptionalConfigDelegate] which queries multiple [ConfigValueSupplier]s for a property, returning
  * null if the property couldn't be retrieved
  */
 inline fun <reified T : Any> optionalconfig(block: SupplierBuilder<T>.() -> Unit): OptionalConfigDelegate<T> {
-    val supplier = SupplierBuilder<T>(typeOf<T>()).apply(block)
-    return if (supplier.suppliers.size == 1) {
+    val supplierBuilder = SupplierBuilder<T>(typeOf<T>()).apply(block)
+    return if (supplierBuilder.suppliers.size == 1) {
         // Avoid wrapping in a FallbackSupplier if we don't need one
-        OptionalConfigDelegate(supplier.suppliers.first())
+        OptionalConfigDelegate(supplierBuilder.suppliers.first())
     } else {
-        return OptionalConfigDelegate(FallbackSupplier(supplier.suppliers))
+        OptionalConfigDelegate(FallbackSupplier(supplierBuilder.suppliers))
     }
 }

@@ -17,6 +17,7 @@
 package org.jitsi.metaconfig.supplier
 
 import org.jitsi.metaconfig.ConfigException
+import org.jitsi.metaconfig.Deprecation
 import org.jitsi.metaconfig.MetaconfigSettings
 
 class LambdaSupplier<ValueType : Any>(
@@ -41,6 +42,9 @@ class LambdaSupplier<ValueType : Any>(
             throw ConfigException.UnableToRetrieve.NotFound("Lambda supplier $context unable to retrieve value")
         }
     }
+
+    override fun withDeprecation(deprecation: Deprecation): LambdaSupplier<ValueType> =
+        throw Exception("LambdaSupplier can't be marked as deprecated!")
 
     override fun toString(): String = "${this::class.simpleName}${if (context.isNotBlank()) ": '$context'" else ""}"
 }

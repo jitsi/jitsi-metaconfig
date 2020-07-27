@@ -1,4 +1,4 @@
-![Java CI with Maven](https://github.com/jitsi/jitsi-metaconfig/workflows/Java%20CI%20with%20Maven/badge.svg) 
+![Java CI with Maven](https://github.com/jitsi/jitsi-metaconfig/workflows/Java%20CI%20with%20Maven/badge.svg)
 ![Code Coverage](https://codecov.io/gh/jitsi/jitsi-metaconfig/branch/master/graph/badge.svg)
 
 # jitsi-metaconfig
@@ -15,7 +15,7 @@ supports marking old properties as deprecated to ease the transition to removing
 ### Example config properties:
 ```kotlin
 class Foo {
-    // Simple property
+    // A simple property with just a key and a source
     val enabled: Boolean by config("app.enabled".from(myConfigSource))
 
     // Optional property
@@ -23,30 +23,36 @@ class Foo {
 
     // Convert the type (retrieve as a Long, convert to a Duration)
     val interval: Duration by config {
-        retrieve("app.interval-ms".from(myConfigSource).asType<Long>().andConvertBy(Duration::ofMillis))
+        "app.interval-ms".from(myConfigSource).convertFrom<Long>(Duration::ofMillis)
     }
 
     // Transform the value (invert the retrieved boolean value)
     val enabled: Boolean by config {
-        retrieve("app.disabled".from(myConfigSource).andTransformBy { !it })
+        "app.disabled".from(myConfigSource).andTransformBy { !it }
     }
 
     // Search for value in a legacy config file and then the new one
     val enabled: Boolean by config {
-        retrieve("old.path.app.enabled".from(legacyConfigSource))
-        retrieve("new.path.app.enabled".from(newConfigSource))
+        "old.path.app.enabled".from(legacyConfigSource)
+        "new.path.app.enabled".from(newConfigSource)
     }
 
     // Search for value in a legacy config file and then the new one, mark the old one as deprecated
     val enabled: Boolean by config {
-        retrieve("old.path.app.enabled".from(legacyConfigSource).softDeprecated("use 'new.path.app.enabled' in new config source")
-        retrieve("new.path.app.enabled".from(newConfigSource))
+        "old.path.app.enabled".from(legacyConfigSource).softDeprecated("use 'new.path.app.enabled' in new config source")
+        "new.path.app.enabled".from(newConfigSource)
+    }
+
+    // Use the result of a lambda as a value
+    val port: Int by config {
+        "path.to.port".from(newConfigSource)
+        "default" { 8080 }
     }
 
     // Only allow access to port if 'enabled' is true (throws an exception otherwise)
     val port: Int by config {
         onlyIf("Server is enabled", ::enabled) {
-            retrieve("path.to.port".from(newConfigSource))
+            "path.to.port".from(newConfigSource)
         }
     }
 }
