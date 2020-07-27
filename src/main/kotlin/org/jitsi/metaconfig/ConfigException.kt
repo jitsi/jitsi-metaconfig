@@ -17,7 +17,7 @@
 package org.jitsi.metaconfig
 
 /**
- * Throw when a value for the property couldn't be retrieved [ConfigSource]
+ * Throw when a value for the property couldn't be retrieved from a [ConfigSource]
  */
 sealed class ConfigException(msg: String) : Exception(msg) {
     sealed class UnableToRetrieve(msg: String) : ConfigException(msg) {
