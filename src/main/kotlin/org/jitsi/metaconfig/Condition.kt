@@ -16,6 +16,10 @@
 
 package org.jitsi.metaconfig
 
+/**
+ * A guard for whether or not a property can be accessed based on the return
+ * value of the given predicate.
+ */
 data class Condition(
     val context: String,
     private val predicate: () -> Boolean

@@ -16,6 +16,9 @@
 
 package org.jitsi.metaconfig
 
+/**
+ * Models the deprecation status of a configuration property
+ */
 sealed class Deprecation {
     object NotDeprecated : Deprecation()
     sealed class Deprecated(open val msg: String) : Deprecation() {
