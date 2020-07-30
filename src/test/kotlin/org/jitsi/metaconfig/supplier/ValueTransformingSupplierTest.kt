@@ -28,7 +28,7 @@ class ValueTransformingSupplierTest : ShouldSpec({
         throw ConfigException.UnableToRetrieve.NotFound("not found")
     }
 
-    context("a ValueTransformingSUpplier") {
+    context("a ValueTransformingSupplier") {
         context("with an inner supplier which finds the value") {
             val tcs = ValueTransformingSupplier(workingOrigSupplier) { it + 1 }
             should("convert the type correctly") {
@@ -39,6 +39,14 @@ class ValueTransformingSupplierTest : ShouldSpec({
             val tcs = ValueTransformingSupplier(missingOrigSupplier) { it + 1 }
             shouldThrow<ConfigException.UnableToRetrieve.NotFound> {
                 tcs.get()
+            }
+        }
+        context("whose transformation fails") {
+            val tcs = ValueTransformingSupplier<Int>(workingOrigSupplier) { throw NullPointerException() }
+            should("translate the exception") {
+                shouldThrow<ConfigException.UnableToRetrieve.Error> {
+                    tcs.get()
+                }
             }
         }
     }
