@@ -48,5 +48,18 @@ class ConditionalSupplierTest : ShouldSpec({
                 }
             }
         }
+        context("when the condition is met and the inner supplier throws") {
+            val cs = ConditionalSupplier<Int>(
+                Condition("enabled", { true }),
+                listOf(
+                    LambdaSupplier<Int> { throw NullPointerException() }
+                )
+            )
+            should("translate the exception") {
+                shouldThrow<ConfigException.UnableToRetrieve> {
+                    cs.get()
+                }
+            }
+        }
     }
 })

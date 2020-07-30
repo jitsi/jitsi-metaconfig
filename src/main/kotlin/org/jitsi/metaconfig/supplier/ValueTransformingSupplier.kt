@@ -16,6 +16,7 @@
 
 package org.jitsi.metaconfig.supplier
 
+import org.jitsi.metaconfig.ConfigException
 import org.jitsi.metaconfig.Deprecation
 import org.jitsi.metaconfig.MetaconfigSettings
 import org.jitsi.metaconfig.noDeprecation
@@ -32,10 +33,16 @@ class ValueTransformingSupplier<ValueType : Any>(
 ) : ConfigValueSupplier<ValueType>() {
 
     override fun doGet(): ValueType {
-        return transformer(originalSupplier.get()).also {
-            MetaconfigSettings.logger.debug {
-                "${this::class.simpleName}: Transformed value from $originalSupplier"
+        try {
+            return transformer(originalSupplier.get()).also {
+                MetaconfigSettings.logger.debug {
+                    "${this::class.simpleName}: Transformed value from $originalSupplier"
+                }
             }
+        } catch (t: ConfigException) {
+            throw t
+        } catch (t: Throwable) {
+            throw ConfigException.UnableToRetrieve.Error(t)
         }
     }
 

@@ -38,20 +38,26 @@ class ConfigSourceSupplier<ValueType : Any>(
         MetaconfigSettings.logger.debug {
             "${this::class.simpleName}: Trying to retrieve key '$key' from source '${source.name}' as type $type"
         }
-        return (source.getterFor(type)(key) as ValueType).also {
-            MetaconfigSettings.logger.debug {
-                "${this::class.simpleName}: Successfully retrieved key '$key' from source '${source.name}' as type $type"
-            }
-            if (deprecation is Deprecation.Deprecated.Soft && !deprecationWarningLogged) {
-                MetaconfigSettings.logger.warn {
-                    "Key '$key' from source '${source.name}' is deprecated: ${deprecation.msg}"
+        try {
+            return (source.getterFor(type)(key) as ValueType).also {
+                MetaconfigSettings.logger.debug {
+                    "${this::class.simpleName}: Successfully retrieved key '$key' from source '${source.name}' as type $type"
                 }
-                deprecationWarningLogged = true
-            } else if (deprecation is Deprecation.Deprecated.Hard) {
-                throw ConfigException.UnableToRetrieve.Deprecated(
-                    "Key '$key' from source '${source.name}' is deprecated: ${deprecation.msg}"
-                )
+                if (deprecation is Deprecation.Deprecated.Soft && !deprecationWarningLogged) {
+                    MetaconfigSettings.logger.warn {
+                        "Key '$key' from source '${source.name}' is deprecated: ${deprecation.msg}"
+                    }
+                    deprecationWarningLogged = true
+                } else if (deprecation is Deprecation.Deprecated.Hard) {
+                    throw ConfigException.UnableToRetrieve.Deprecated(
+                        "Key '$key' from source '${source.name}' is deprecated: ${deprecation.msg}"
+                    )
+                }
             }
+        } catch (t: ConfigException.UnableToRetrieve) {
+            throw t
+        } catch (t: Throwable) {
+            throw ConfigException.UnableToRetrieve.Error(t)
         }
     }
 

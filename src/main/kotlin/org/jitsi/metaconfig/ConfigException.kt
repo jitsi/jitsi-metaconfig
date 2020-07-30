@@ -35,6 +35,8 @@ sealed class ConfigException(msg: String) : Exception(msg) {
         class Deprecated(msg: String) : UnableToRetrieve(msg)
 
         class ConditionNotMet(msg: String) : UnableToRetrieve(msg)
+
+        class Error(t: Throwable) : UnableToRetrieve(t.message ?: "${t::class}")
     }
 
     /**

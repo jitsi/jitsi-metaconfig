@@ -41,5 +41,13 @@ class TypeConvertingSupplierTest : ShouldSpec({
                 tcs.get()
             }
         }
+        context("whose conversion fails") {
+            val tcs = TypeConvertingSupplier<Int, Boolean>(workingOrigSupplier) { throw NullPointerException() }
+            should("translate the exception") {
+                shouldThrow<ConfigException.UnableToRetrieve.Error> {
+                    tcs.get()
+                }
+            }
+        }
     }
 })
