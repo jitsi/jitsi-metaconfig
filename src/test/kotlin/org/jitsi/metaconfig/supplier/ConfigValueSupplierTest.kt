@@ -17,12 +17,10 @@
 package org.jitsi.metaconfig.supplier
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.inspectors.forNone
 import io.kotest.inspectors.forOne
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldMatch
 import org.jitsi.MockLogger
 import org.jitsi.metaconfig.ConfigException
 import org.jitsi.metaconfig.MapConfigSource
@@ -82,7 +80,7 @@ class ConfigValueSupplierTest : ShouldSpec({
                 context("even when wrapped") {
                     val t = ValueTransformingSupplier(s) { it + 1}
                     should("log a warning") {
-                        s.get() shouldBe 42
+                        t.get() shouldBe 43
                         mockLogger.warnMessages.forOne {
                             it shouldBe "Key 'new.num' from source 'config' is deprecated: deprecated"
                         }
