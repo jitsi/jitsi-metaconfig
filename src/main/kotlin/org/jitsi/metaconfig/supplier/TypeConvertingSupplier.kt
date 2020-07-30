@@ -16,6 +16,7 @@
 
 package org.jitsi.metaconfig.supplier
 
+import org.jitsi.metaconfig.ConfigException
 import org.jitsi.metaconfig.Deprecation
 import org.jitsi.metaconfig.MetaconfigSettings
 import org.jitsi.metaconfig.noDeprecation
@@ -33,10 +34,16 @@ class TypeConvertingSupplier<OriginalType : Any, NewType : Any>(
 ) : ConfigValueSupplier<NewType>() {
 
     override fun doGet(): NewType {
-        return converter(originalSupplier.get()).also {
-            MetaconfigSettings.logger.debug {
-                "${this::class.simpleName}: Converted value type from $originalSupplier"
+        try {
+            return converter(originalSupplier.get()).also {
+                MetaconfigSettings.logger.debug {
+                    "${this::class.simpleName}: Converted value type from $originalSupplier"
+                }
             }
+        } catch (t: ConfigException) {
+            throw t
+        } catch (t: Throwable) {
+            throw ConfigException.UnableToRetrieve.Error(t)
         }
     }
 
