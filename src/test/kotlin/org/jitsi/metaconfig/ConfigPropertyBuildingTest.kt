@@ -130,5 +130,42 @@ class ConfigPropertyBuildingTest : ShouldSpec({
             }
             obj.num shouldBe null
         }
+        should("cache the result if the inner suppliers of an optionalconfig throw") {
+            var callCount = 0
+            val obj = object {
+                val num: Int? by optionalconfig {
+                    "test" {
+                        callCount++
+                        throw NullPointerException()
+                    }
+                }
+            }
+            obj.num shouldBe null
+            obj.num shouldBe null
+            obj.num shouldBe null
+            callCount shouldBe 1
+        }
+
+        should("cache the result if the inner suppliers of a config throw") {
+            var callCount = 0
+            val obj = object {
+                val num: Int by config {
+                    "test" {
+                        callCount++
+                        throw NullPointerException()
+                    }
+                }
+            }
+            shouldThrow<Throwable> {
+                obj.num
+            }
+            shouldThrow<Throwable> {
+                obj.num
+            }
+            shouldThrow<Throwable> {
+                obj.num
+            }
+            callCount shouldBe 1
+        }
     }
 })

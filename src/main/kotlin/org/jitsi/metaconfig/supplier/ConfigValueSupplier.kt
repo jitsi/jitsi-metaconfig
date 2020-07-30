@@ -18,15 +18,18 @@ package org.jitsi.metaconfig.supplier
 
 import org.jitsi.metaconfig.ConfigException
 import org.jitsi.metaconfig.Deprecation
+import org.jitsi.metaconfig.util.ConfigResult
+import org.jitsi.metaconfig.util.getOrThrow
+import org.jitsi.metaconfig.util.resultOf
 
 /**
  * A [ConfigValueSupplier] is a class which is responsible for retrieving the value
  * of a configuration property.
  */
 abstract class ConfigValueSupplier<ValueType : Any> {
-    private val value: ValueType by lazy { doGet() }
+    private val value: ConfigResult<ValueType> by lazy { resultOf { doGet() } }
 
-    fun get(): ValueType = value
+    fun get(): ValueType = value.getOrThrow()
 
     /**
      * Apply a [Deprecation] to this [ConfigValueSupplier].  Deprecation is only applied to types
