@@ -25,28 +25,32 @@ import kotlin.reflect.typeOf
  *
  * Useful for testing because the config source can be used by classes but its
  * values changed later.
+ * @param delegate An optional delegate [ConfigSource] which will be used when a key is not found in the map.
  */
 class MapConfigSource(
     override val name: String,
-    private val configValues: MutableMap<String, Any> = mutableMapOf()
+    private val configValues: MutableMap<String, Any> = mutableMapOf(),
+    private val delegate: ConfigSource? = null
 ) : ConfigSource, MutableMap<String, Any> by configValues {
     constructor(name: String, mapBuilder: MutableMap<String, Any>.() -> Unit) : this(name, LinkedHashMap<String, Any>().apply(mapBuilder))
 
     override fun getterFor(type: KType): (String) -> Any {
         return when (type) {
-            typeOf<Boolean>() -> getCatching<Boolean>()
-            typeOf<Long>() -> getCatching<Long>()
-            typeOf<Int>() -> getCatching<Int>()
-            typeOf<String>() -> getCatching<String>()
-            typeOf<Duration>() -> getCatching<Duration>()
+            typeOf<Boolean>() -> getCatching<Boolean>(type)
+            typeOf<Long>() -> getCatching<Long>(type)
+            typeOf<Int>() -> getCatching<Int>(type)
+            typeOf<String>() -> getCatching<String>(type)
+            typeOf<Duration>() -> getCatching<Duration>(type)
             else -> throw ConfigException.UnsupportedType("Type $type not supported by this source")
         }
     }
 
     @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T : Any> getCatching(): (String) -> T {
+    private inline fun <reified T : Any> getCatching(type: KType): (String) -> T {
         return { key ->
-            val value = configValues[key] ?: throw ConfigException.UnableToRetrieve.NotFound("not found")
+            val value = configValues[key]
+                ?: delegate?.getterFor(type)?.invoke(key)
+                ?: throw ConfigException.UnableToRetrieve.NotFound("not found")
             value as? T ?: throw ConfigException.UnableToRetrieve.WrongType(
                 "Wrong type: expected type " +
                     "${typeOf<T>().classifier}, got type ${value::class}"
