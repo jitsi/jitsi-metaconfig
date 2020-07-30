@@ -44,7 +44,7 @@ class LambdaSupplierTest : ShouldSpec({
         context("that throws any kind of exception") {
             val lsc = LambdaSupplier<Int> { throw RuntimeException() }
             should("throw NotFound") {
-                shouldThrow<ConfigException.UnableToRetrieve.NotFound> {
+                shouldThrow<ConfigException.UnableToRetrieve.Error> {
                     lsc.get()
                 }
             }

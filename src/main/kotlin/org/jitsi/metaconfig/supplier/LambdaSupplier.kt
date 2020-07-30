@@ -39,7 +39,7 @@ class LambdaSupplier<ValueType : Any>(
         } catch (e: ConfigException) {
             throw e
         } catch (t: Throwable) {
-            throw ConfigException.UnableToRetrieve.NotFound("Lambda supplier $context unable to retrieve value")
+            throw ConfigException.UnableToRetrieve.Error(t)
         }
     }
 
