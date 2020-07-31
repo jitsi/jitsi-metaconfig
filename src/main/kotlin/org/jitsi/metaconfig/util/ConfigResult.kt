@@ -25,7 +25,7 @@ sealed class ConfigResult<out T> {
     class Failure(val exception: Throwable) : ConfigResult<Nothing>()
 }
 
-fun <T> ConfigResult<T>.getOrThrow(): T = when(this) {
+fun <T> ConfigResult<T>.getOrThrow(): T = when (this) {
     is ConfigResult.Success<T> -> value
     is ConfigResult.Failure -> throw exception
 }
