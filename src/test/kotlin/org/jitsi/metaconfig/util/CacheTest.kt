@@ -18,6 +18,7 @@ package org.jitsi.metaconfig.util
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import org.jitsi.disableCachingFor
 import org.jitsi.metaconfig.MetaconfigSettings
 
 class CacheTest : ShouldSpec({
@@ -37,13 +38,14 @@ class CacheTest : ShouldSpec({
             }
         }
         context("when the cache is disabled") {
-            MetaconfigSettings.cacheEnabled = false
             should("call the supplier every time") {
-                obj.num shouldBe 0
-                obj.num shouldBe 1
-                obj.num shouldBe 2
-                obj.num shouldBe 3
-                callCount shouldBe 4
+                disableCachingFor {
+                    obj.num shouldBe 0
+                    obj.num shouldBe 1
+                    obj.num shouldBe 2
+                    obj.num shouldBe 3
+                    callCount shouldBe 4
+                }
             }
         }
     }

@@ -20,6 +20,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import org.jitsi.disableCachingFor
 import java.time.Duration
 
 class ConfigPropertyBuildingTest : ShouldSpec({
@@ -214,8 +215,3 @@ class ConfigPropertyBuildingTest : ShouldSpec({
     }
 })
 
-private fun disableCachingFor(block: () -> Unit) {
-    MetaconfigSettings.cacheEnabled = false
-    block()
-    MetaconfigSettings.cacheEnabled = true
-}
