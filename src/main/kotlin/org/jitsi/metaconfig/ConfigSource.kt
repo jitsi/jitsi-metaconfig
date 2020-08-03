@@ -39,4 +39,11 @@ interface ConfigSource {
      * event of errors
      */
     val name: String
+
+    /**
+     * A description of this [ConfigSource] (this could, for example, include information about the origin of the
+     * configuration properties).
+     */
+    val description: String
+        get() = "$name (no description provided)"
 }
