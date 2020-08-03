@@ -17,11 +17,15 @@
 package org.jitsi.metaconfig
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import org.jitsi.disableCachingFor
 import java.time.Duration
 
 class ConfigPropertyBuildingTest : ShouldSpec({
+    isolationMode = IsolationMode.InstancePerLeaf
+
     val legacyConfig = MapConfigSource("legacy config") {
         put("legacy.num", 42)
         put("legacy.interval", 5000L)
@@ -146,6 +150,24 @@ class ConfigPropertyBuildingTest : ShouldSpec({
             callCount shouldBe 1
         }
 
+        should("not cache the result if the inner suppliers of an optionalconfig throw when the cache is disabled") {
+            disableCachingFor {
+                var callCount = 0
+                val obj = object {
+                    val num: Int? by optionalconfig {
+                        "test" {
+                            callCount++
+                            throw NullPointerException()
+                        }
+                    }
+                }
+                obj.num shouldBe null
+                obj.num shouldBe null
+                obj.num shouldBe null
+                callCount shouldBe 3
+            }
+        }
+
         should("cache the result if the inner suppliers of a config throw") {
             var callCount = 0
             val obj = object {
@@ -167,5 +189,29 @@ class ConfigPropertyBuildingTest : ShouldSpec({
             }
             callCount shouldBe 1
         }
+        should("not cache the result if the inner suppliers of a config throw if the cache is disabled") {
+            disableCachingFor {
+                var callCount = 0
+                val obj = object {
+                    val num: Int by config {
+                        "test" {
+                            callCount++
+                            throw NullPointerException()
+                        }
+                    }
+                }
+                shouldThrow<Throwable> {
+                    obj.num
+                }
+                shouldThrow<Throwable> {
+                    obj.num
+                }
+                shouldThrow<Throwable> {
+                    obj.num
+                }
+                callCount shouldBe 3
+            }
+        }
     }
 })
+

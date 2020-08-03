@@ -24,6 +24,14 @@ class MetaconfigSettings {
          * to a no-op implementation
          */
         var logger: MetaconfigLogger = DefaultLogger
+
+        /**
+         * A hook to disable caching.  This is only intended to be used for testing
+         * and is useful if a config property is defined as static (and therefore
+         * only loaded once).  Disabling the cache will cause the property to re-look
+         * up the value each time.
+         */
+        var cacheEnabled: Boolean = true
     }
 }
 
