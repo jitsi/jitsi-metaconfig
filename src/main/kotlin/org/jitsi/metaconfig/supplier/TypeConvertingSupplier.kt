@@ -37,7 +37,7 @@ class TypeConvertingSupplier<OriginalType : Any, NewType : Any>(
         try {
             return converter(originalSupplier.get()).also {
                 MetaconfigSettings.logger.debug {
-                    "${this::class.simpleName}: Converted value type from $originalSupplier"
+                    "${this::class.simpleName}: Converted value type from $originalSupplier to $it"
                 }
             }
         } catch (t: ConfigException) {
