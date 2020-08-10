@@ -33,7 +33,7 @@ class LambdaSupplier<ValueType : Any>(
         return try {
             supplier().also {
                 MetaconfigSettings.logger.debug {
-                    "$this: found value"
+                    "$this: found value $it"
                 }
             }
         } catch (e: ConfigException) {

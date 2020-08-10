@@ -36,7 +36,7 @@ class ValueTransformingSupplier<ValueType : Any>(
         try {
             return transformer(originalSupplier.get()).also {
                 MetaconfigSettings.logger.debug {
-                    "${this::class.simpleName}: Transformed value from $originalSupplier"
+                    "${this::class.simpleName}: Transformed value from $originalSupplier to $it"
                 }
             }
         } catch (t: ConfigException) {
