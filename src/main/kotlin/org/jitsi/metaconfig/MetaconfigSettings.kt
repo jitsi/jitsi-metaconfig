@@ -32,6 +32,13 @@ class MetaconfigSettings {
          * up the value each time.
          */
         var cacheEnabled: Boolean = true
+
+        /**
+         * A hook to force retrieval of the config value immediately upon creation (rather than
+         * lazily on first access).  This is only intended to be used for testing and currently
+         * only works on ConfigSourceSuppliers.
+         */
+        var retrieveValuesImmediately: Boolean = false
     }
 }
 

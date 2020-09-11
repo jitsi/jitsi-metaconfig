@@ -33,6 +33,12 @@ class ConfigSourceSupplier<ValueType : Any>(
 ) : ConfigValueSupplier<ValueType>() {
     private var deprecationWarningLogged = false
 
+    init {
+        if (MetaconfigSettings.retrieveValuesImmediately) {
+            get()
+        }
+    }
+
     @Suppress("UNCHECKED_CAST")
     override fun doGet(): ValueType {
         MetaconfigSettings.logger.debug {
