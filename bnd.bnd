@@ -1,0 +1,5 @@
+Export-Package: org.jitsi.metaconfig.*
+Bundle-SymbolicName: org.jitsi.metaconfig
+-noextraheaders: true
+-snapshot: SNAPSHOT
+-removeheaders: Require-Capability, Bundle-SCM
