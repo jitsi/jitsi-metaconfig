@@ -1,5 +1,6 @@
 ![Java CI with Maven](https://github.com/jitsi/jitsi-metaconfig/workflows/Java%20CI%20with%20Maven/badge.svg)
-![Code Coverage](https://codecov.io/gh/jitsi/jitsi-metaconfig/branch/master/graph/badge.svg)
+[![Code Coverage](https://codecov.io/gh/jitsi/jitsi-metaconfig/branch/master/graph/badge.svg)](https://codecov.io/gh/jitsi/jitsi-metaconfig)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/jitsi/jitsi-metaconfig/badge.svg)](https://search.maven.org/artifact/jitsi/jitsi-metaconfig)
 
 # jitsi-metaconfig
 
