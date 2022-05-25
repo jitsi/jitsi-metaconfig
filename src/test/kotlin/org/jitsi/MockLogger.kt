@@ -49,5 +49,4 @@ class MockLogger(val printToStdOut: Boolean = false) : MetaconfigLogger {
             warnMessages += this
         }
     }
-
 }

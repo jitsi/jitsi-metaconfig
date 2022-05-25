@@ -44,7 +44,7 @@ class ConfigSourceSupplierTest : ShouldSpec({
             }
         }
         context("when the getter throws some other exception") {
-            every { configSource.getterFor(typeOf<Int>())} throws NullPointerException()
+            every { configSource.getterFor(typeOf<Int>()) } throws NullPointerException()
             should("translate the exception") {
                 shouldThrow<ConfigException.UnableToRetrieve.Error> {
                     css.get()

@@ -22,7 +22,7 @@ import io.kotest.matchers.shouldBe
 import org.jitsi.metaconfig.ConfigException
 
 class TypeConvertingSupplierTest : ShouldSpec({
-    val workingOrigSupplier = LambdaSupplier{ 42 }
+    val workingOrigSupplier = LambdaSupplier { 42 }
 
     val missingOrigSupplier = LambdaSupplier<Int> {
         throw ConfigException.UnableToRetrieve.NotFound("not found")
