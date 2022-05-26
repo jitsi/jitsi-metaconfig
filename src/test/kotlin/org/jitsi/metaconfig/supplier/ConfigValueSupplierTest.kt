@@ -70,7 +70,8 @@ class ConfigValueSupplierTest : ShouldSpec({
         context("marked as soft deprecated") {
             context("that finds a value") {
                 val s = ConfigSourceSupplier<Int>(
-                    "new.num", config, typeOf<Int>(), softDeprecation("deprecated"))
+                    "new.num", config, typeOf<Int>(), softDeprecation("deprecated")
+                )
                 should("log a warning") {
                     s.get() shouldBe 42
                     mockLogger.warnMessages.forOne {
@@ -78,7 +79,7 @@ class ConfigValueSupplierTest : ShouldSpec({
                     }
                 }
                 context("even when wrapped") {
-                    val t = ValueTransformingSupplier(s) { it + 1}
+                    val t = ValueTransformingSupplier(s) { it + 1 }
                     should("log a warning") {
                         t.get() shouldBe 43
                         mockLogger.warnMessages.forOne {
@@ -89,7 +90,8 @@ class ConfigValueSupplierTest : ShouldSpec({
             }
             context("that doesn't find a value") {
                 val s = ConfigSourceSupplier<Int>(
-                    "missing.num", config, typeOf<Int>(), softDeprecation("deprecated"))
+                    "missing.num", config, typeOf<Int>(), softDeprecation("deprecated")
+                )
                 should("not log a warning") {
                     shouldThrow<ConfigException.UnableToRetrieve.NotFound> {
                         s.get()
@@ -103,7 +105,8 @@ class ConfigValueSupplierTest : ShouldSpec({
         context("marked as hard deprecated") {
             context("that finds a value") {
                 val s = ConfigSourceSupplier<Int>(
-                    "new.num", config, typeOf<Int>(), hardDeprecation("deprecated"))
+                    "new.num", config, typeOf<Int>(), hardDeprecation("deprecated")
+                )
                 should("throw an exception") {
                     val ex = shouldThrow<ConfigException.UnableToRetrieve.Deprecated> {
                         s.get()
@@ -113,7 +116,8 @@ class ConfigValueSupplierTest : ShouldSpec({
             }
             context("that doesn't find a value") {
                 val s = ConfigSourceSupplier<Int>(
-                    "missing.num", config, typeOf<Int>(), hardDeprecation("deprecated"))
+                    "missing.num", config, typeOf<Int>(), hardDeprecation("deprecated")
+                )
                 should("throw the UnableToRetrieve exception") {
                     shouldThrow<ConfigException.UnableToRetrieve.NotFound> {
                         s.get()

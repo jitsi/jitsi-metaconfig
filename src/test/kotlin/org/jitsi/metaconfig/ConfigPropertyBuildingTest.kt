@@ -102,7 +102,7 @@ class ConfigPropertyBuildingTest : ShouldSpec({
                     }
                 }
                 val disabledNum: Int by config {
-                    onlyIf("enabled", { false} ) {
+                    onlyIf("enabled", { false }) {
                         "new.num".from(newConfig)
                     }
                 }
@@ -214,4 +214,3 @@ class ConfigPropertyBuildingTest : ShouldSpec({
         }
     }
 })
-
