@@ -38,7 +38,8 @@ class ConfigSourceSupplierTest : ShouldSpec({
             noDeprecation()
         )
         context("when the property isn't present") {
-            every { configSource.getterFor(typeOf<Int>()) } throws ConfigException.UnableToRetrieve.NotFound("not found")
+            every { configSource.getterFor(typeOf<Int>()) } throws
+                ConfigException.UnableToRetrieve.NotFound("not found")
             shouldThrow<ConfigException.UnableToRetrieve.NotFound> {
                 css.get()
             }

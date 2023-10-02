@@ -30,7 +30,10 @@ class MapConfigSource(
     override val name: String,
     private val configValues: MutableMap<String, Any> = mutableMapOf()
 ) : ConfigSource, MutableMap<String, Any> by configValues {
-    constructor(name: String, mapBuilder: MutableMap<String, Any>.() -> Unit) : this(name, LinkedHashMap<String, Any>().apply(mapBuilder))
+    constructor(
+        name: String,
+        mapBuilder: MutableMap<String, Any>.() -> Unit
+    ) : this(name, LinkedHashMap<String, Any>().apply(mapBuilder))
 
     override fun getterFor(type: KType): (String) -> Any {
         return when (type) {
