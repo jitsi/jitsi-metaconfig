@@ -47,7 +47,8 @@ class ConfigSourceSupplier<ValueType : Any>(
         try {
             return (source.getterFor(type)(key) as ValueType).also {
                 MetaconfigSettings.logger.debug {
-                    "${this::class.simpleName}: Found value $it for key '$key' from source '${source.name}' as type $type"
+                    "${this::class.simpleName}: Found value $it for key '$key' from source '${source.name}' " +
+                        "as type $type"
                 }
                 if (deprecation is Deprecation.Deprecated.Soft && !deprecationWarningLogged) {
                     MetaconfigSettings.logger.warn {

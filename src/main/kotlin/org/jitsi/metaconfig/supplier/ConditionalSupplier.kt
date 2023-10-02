@@ -42,5 +42,6 @@ class ConditionalSupplier<ValueType : Any>(
     override fun withDeprecation(deprecation: Deprecation): LambdaSupplier<ValueType> =
         throw Exception("ConditionalSupplier can't be marked as deprecated!")
 
-    override fun toString(): String = "${this::class.simpleName}: Enabled only when ${condition.context}: $innerSupplier"
+    override fun toString(): String =
+        "${this::class.simpleName}: Enabled only when ${condition.context}: $innerSupplier"
 }

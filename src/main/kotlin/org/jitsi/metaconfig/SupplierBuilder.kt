@@ -83,7 +83,9 @@ class SupplierBuilder<T : Any>(val finalType: KType) {
      * we need to recreate the underlying supplier to retrieve a different type than was originally inferred (we can
      * add support for other suppliers where this makes sense as the need arises).
      */
-    inline fun <reified RetrieveType : Any> ConfigSourceSupplier<T>.convertFrom(noinline converter: (RetrieveType) -> T): TypeConvertingSupplier<RetrieveType, T> {
+    inline fun <reified RetrieveType : Any> ConfigSourceSupplier<T>.convertFrom(
+        noinline converter: (RetrieveType) -> T
+    ): TypeConvertingSupplier<RetrieveType, T> {
         suppliers -= this
         return TypeConvertingSupplier(
             // Re-create the underyling ConfigSourceSupplier, but have it retrieve a different type
