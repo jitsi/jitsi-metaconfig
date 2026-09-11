@@ -59,17 +59,37 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.9.10</kotlin.version>
-        <kotest.version>5.7.2</kotest.version>
-        <dokka.version>1.9.0</dokka.version>
-        <mockk.version>1.13.8</mockk.version>
+        <kotlin.version>2.4.20</kotlin.version>
+        <kotest.version>5.9.1</kotest.version>
+        <org.junit.version>5.14.4</org.junit.version>
+        <org.junit.platform.version>1.14.4</org.junit.platform.version>
+        <dokka.version>2.2.0</dokka.version>
+        <mockk.version>1.14.11</mockk.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${org.junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${org.junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>${org.junit.platform.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.kotest</groupId>
@@ -165,6 +185,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
+                <configuration>
+                  <systemPropertyVariables>
+                    <kotest.framework.classpath.scanning.autoscan.disable>true</kotest.framework.classpath.scanning.autoscan.disable>
+                  </systemPropertyVariables>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.github.gantsign.maven</groupId>
