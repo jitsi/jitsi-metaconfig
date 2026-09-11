@@ -42,11 +42,10 @@ class SupplierBuilder<T : Any>(val finalType: KType) {
     /**
      * Given a key and a source, create a [ConfigSourceSupplier] with an inferred type.
      */
-    fun String.from(configSource: ConfigSource): ConfigSourceSupplier<T> {
-        return ConfigSourceSupplier<T>(this, configSource, finalType, noDeprecation()).also {
+    fun String.from(configSource: ConfigSource): ConfigSourceSupplier<T> =
+        ConfigSourceSupplier<T>(this, configSource, finalType, noDeprecation()).also {
             suppliers += it
         }
-    }
 
     /**
      * Mark the source key of the value from this supplier as soft deprecated

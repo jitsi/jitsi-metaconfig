@@ -35,25 +35,21 @@ class MapConfigSource(
         mapBuilder: MutableMap<String, Any>.() -> Unit
     ) : this(name, LinkedHashMap<String, Any>().apply(mapBuilder))
 
-    override fun getterFor(type: KType): (String) -> Any {
-        return when (type) {
-            typeOf<Boolean>() -> getCatching<Boolean>()
-            typeOf<Long>() -> getCatching<Long>()
-            typeOf<Int>() -> getCatching<Int>()
-            typeOf<String>() -> getCatching<String>()
-            typeOf<Duration>() -> getCatching<Duration>()
-            else -> throw ConfigException.UnsupportedType("Type $type not supported by this source")
-        }
+    override fun getterFor(type: KType): (String) -> Any = when (type) {
+        typeOf<Boolean>() -> getCatching<Boolean>()
+        typeOf<Long>() -> getCatching<Long>()
+        typeOf<Int>() -> getCatching<Int>()
+        typeOf<String>() -> getCatching<String>()
+        typeOf<Duration>() -> getCatching<Duration>()
+        else -> throw ConfigException.UnsupportedType("Type $type not supported by this source")
     }
 
     @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T : Any> getCatching(): (String) -> T {
-        return { key ->
-            val value = configValues[key] ?: throw ConfigException.UnableToRetrieve.NotFound("not found")
-            value as? T ?: throw ConfigException.UnableToRetrieve.WrongType(
-                "Wrong type: expected type " +
-                    "${typeOf<T>().classifier}, got type ${value::class}"
-            )
-        }
+    private inline fun <reified T : Any> getCatching(): (String) -> T = { key ->
+        val value = configValues[key] ?: throw ConfigException.UnableToRetrieve.NotFound("not found")
+        value as? T ?: throw ConfigException.UnableToRetrieve.WrongType(
+            "Wrong type: expected type " +
+                "${typeOf<T>().classifier}, got type ${value::class}"
+        )
     }
 }

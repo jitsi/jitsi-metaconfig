@@ -26,23 +26,19 @@ import kotlin.reflect.typeOf
  * A delegate for a configuration property which takes a [ConfigValueSupplier]
  */
 open class ConfigDelegate<T : Any>(private val supplier: ConfigValueSupplier<T>) {
-    open operator fun getValue(thisRef: Any, property: KProperty<*>): T {
-        return supplier.get()
-    }
+    open operator fun getValue(thisRef: Any, property: KProperty<*>): T = supplier.get()
 }
 
 /**
  * A config property delegate which will return null if the property isn't found
  */
 class OptionalConfigDelegate<T : Any>(private val supplier: ConfigValueSupplier<T>) {
-    operator fun getValue(thisRef: Any, property: KProperty<*>): T? {
-        return try {
-            supplier.get()
-        } catch (e: ConfigException.UnableToRetrieve.ConditionNotMet) {
-            throw e
-        } catch (t: ConfigException.UnableToRetrieve) {
-            null
-        }
+    operator fun getValue(thisRef: Any, property: KProperty<*>): T? = try {
+        supplier.get()
+    } catch (e: ConfigException.UnableToRetrieve.ConditionNotMet) {
+        throw e
+    } catch (t: ConfigException.UnableToRetrieve) {
+        null
     }
 }
 
