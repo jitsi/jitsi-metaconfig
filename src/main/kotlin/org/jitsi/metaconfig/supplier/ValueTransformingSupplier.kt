@@ -46,9 +46,8 @@ class ValueTransformingSupplier<ValueType : Any>(
         }
     }
 
-    override fun withDeprecation(deprecation: Deprecation): ValueTransformingSupplier<ValueType> {
-        return ValueTransformingSupplier(originalSupplier.withDeprecation(deprecation), transformer)
-    }
+    override fun withDeprecation(deprecation: Deprecation): ValueTransformingSupplier<ValueType> =
+        ValueTransformingSupplier(originalSupplier.withDeprecation(deprecation), transformer)
 
     override fun toString(): String = "${this::class.simpleName}: transforming value from $originalSupplier"
 }

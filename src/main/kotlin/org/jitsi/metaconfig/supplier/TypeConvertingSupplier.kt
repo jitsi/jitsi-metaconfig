@@ -47,9 +47,8 @@ class TypeConvertingSupplier<OriginalType : Any, NewType : Any>(
         }
     }
 
-    override fun withDeprecation(deprecation: Deprecation): TypeConvertingSupplier<OriginalType, NewType> {
-        return TypeConvertingSupplier(originalSupplier.withDeprecation(deprecation), converter)
-    }
+    override fun withDeprecation(deprecation: Deprecation): TypeConvertingSupplier<OriginalType, NewType> =
+        TypeConvertingSupplier(originalSupplier.withDeprecation(deprecation), converter)
 
     override fun toString(): String = "${this::class.simpleName}: converting value from $originalSupplier"
 }

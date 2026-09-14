@@ -30,10 +30,8 @@ fun <T> ConfigResult<T>.getOrThrow(): T = when (this) {
     is ConfigResult.Failure -> throw exception
 }
 
-inline fun <T> resultOf(block: () -> T): ConfigResult<T> {
-    return try {
-        ConfigResult.Success(block())
-    } catch (t: Throwable) {
-        ConfigResult.Failure(t)
-    }
+inline fun <T> resultOf(block: () -> T): ConfigResult<T> = try {
+    ConfigResult.Success(block())
+} catch (t: Throwable) {
+    ConfigResult.Failure(t)
 }

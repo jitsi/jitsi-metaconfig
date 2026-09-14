@@ -28,12 +28,10 @@ class Cache<T : Any>(
 ) {
     private val cachedValue: ConfigResult<T> by lazy { resultOf(supplier) }
 
-    operator fun getValue(thisRef: Any, property: KProperty<*>): T {
-        return if (MetaconfigSettings.cacheEnabled) {
-            cachedValue.getOrThrow()
-        } else {
-            supplier()
-        }
+    operator fun getValue(thisRef: Any, property: KProperty<*>): T = if (MetaconfigSettings.cacheEnabled) {
+        cachedValue.getOrThrow()
+    } else {
+        supplier()
     }
 }
 
